@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>分組工具</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <!-- 載入 XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>管計算工具</h1>
+
+  <div id="stock-container">
+    <h3>單支最大長度 <small style="color: #666; font-weight: normal;">(備註：新增請記得扣除150夾料尺寸)</small></h3>
+    <button id="add-stock-btn" class="add-btn">＋ 新增單支最大長度</button>
+    <div id="stock-inputs">
+      <!-- 初始單支最大長度輸入項，包含種類欄位 -->
+      <div class="input-row" style="display: none;">
+        種類 <input type="text" class="stock-type" placeholder="管材種類">
+        長度 <input type="number" class="stock" value="5850">
+        數量 <input type="number" class="stock-qty" value="1">
+      </div>
+    </div>
+  </div>
+
+  <div id="demand-container">
+    <h3>需求列表</h3>
+    <button id="add-demand-btn" class="add-btn">＋ 新增需求</button>
+    <!-- 匯入 Excel -->
+    <div class="file-input-container">
+      <input type="file" id="excel-file" accept=".xlsx,.xls">
+      <span id="file-name">未選擇檔案</span>
+    </div>
+    <div id="demand-inputs"></div>
+  </div>
+
+  <button id="run-btn" class="primary-btn">開始計算</button>
+  <button id="clear-btn" class="secondary-btn">清除</button>
+
+  <h2>結果</h2>
+  <div id="result"></div>
+
+  <!-- 載入簡化版本 -->
+  <script src="js/xlsx-loader.js"></script>
+  <script src="js/simple-main.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+  </div>
+</body>
+</html>

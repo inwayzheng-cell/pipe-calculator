@@ -1,0 +1,239 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  text-align: center;
+  color: #4a5568;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3, h4 {
+  margin-top: 15px;
+  margin-bottom: 8px;
+  color: #2d3748;
+  border-left: 4px solid #667eea;
+  padding-left: 15px;
+}
+
+button {
+  margin: 8px 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.secondary-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.secondary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.remove-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  padding: 8px 12px;
+  margin-left: 10px;
+  border-radius: 50%;
+  font-size: 12px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+  transform: scale(1.1);
+}
+
+.add-btn {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  padding: 10px 16px;
+  margin: 10px 5px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.add-btn:hover {
+  background: linear-gradient(135deg, #45a049 0%, #388e3c 100%);
+  transform: translateY(-1px);
+}
+
+input {
+  margin: 5px;
+  padding: 10px;
+  width: 100px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-row {
+  background: #f8fafc;
+  padding: 4px;
+  margin: 2px 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.input-row:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#stock-container, #demand-container {
+  background: #f8fafc;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+#stock-inputs, #demand-inputs {
+  background: #ffffff;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  min-height: 40px;
+}
+
+.file-input-container {
+  display: inline-flex;
+  align-items: center;
+  margin: 5px 0;
+  position: relative;
+}
+
+.file-input-container input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  width: 120px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.file-input-container::before {
+  content: "選擇檔案";
+  display: inline-block;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+#file-name {
+  margin-left: 10px;
+  color: #666;
+}
+
+.type-result {
+  margin-bottom: 20px;
+  border: 1px solid #3f51b5;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #e8eaf6;
+}
+
+.type-result h2 {
+  color: #3f51b5;
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid #c5cae9;
+  padding-bottom: 6px;
+  font-size: 16px;
+}
+
+.stock-result {
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.stock-result.default-stock {
+  margin-bottom: 8px;
+  padding: 6px;
+  background-color: #fafafa;
+  border-color: #eee;
+}
+
+.stock-result.default-stock h3 {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+}
+
+.tube-result {
+  margin: 8px 0;
+  padding: 8px;
+  border-left: 3px solid #4CAF50;
+  background-color: #f1f8e9;
+}
+
+.tube-result h4 {
+  color: #2E7D32;
+  margin: 0 0 6px 0;
+  font-size: 14px;
+}
+
+.group {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: 6px 0;
+  background-color: white;
+  font-size: 13px;
+}
