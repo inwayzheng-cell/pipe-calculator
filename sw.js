@@ -1,4 +1,5 @@
-const CACHE_NAME = 'pipe-calculator-cache-v1';
+// 版本號
+const CACHE_NAME = 'pipe-calculator-cache-v2';
 const urlsToCache = [
   '/',
   '管用料計算工具.html',
@@ -23,6 +24,21 @@ self.addEventListener('install', event => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
+  );
+});
+
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
 
