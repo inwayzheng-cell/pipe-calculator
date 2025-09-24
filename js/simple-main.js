@@ -39,6 +39,7 @@ function addDemandItem(btn) {
   newItem.className = "input-row demand-item";
   newItem.innerHTML = `
     長度 <input type="number" class="demand-len" placeholder="需求長度">
+    數量 <input type="number" class="demand-qty" value="1">
     <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
   `;
   itemList.appendChild(newItem);
@@ -116,12 +117,14 @@ function simpleGrouping(stocks, demands) {
       let currentLength = 0;
       
       // 嘗試在這根庫存中放入盡可能多的需求
-      for (let i = 0; i < remainingDemands.length; i++) {
+      let i = 0;
+      while (i < remainingDemands.length) {
         if (currentLength + remainingDemands[i] <= currentStock.length) {
           group.push(remainingDemands[i]);
           currentLength += remainingDemands[i];
           remainingDemands.splice(i, 1);
-          i--; // 調整索引
+        } else {
+          i++;
         }
       }
       
@@ -146,12 +149,14 @@ function simpleGrouping(stocks, demands) {
         const group = [];
         let currentLength = 0;
         
-        for (let i = 0; i < remainingDemands.length; i++) {
+        let i = 0;
+        while (i < remainingDemands.length) {
           if (currentLength + remainingDemands[i] <= defaultLength) {
             group.push(remainingDemands[i]);
             currentLength += remainingDemands[i];
             remainingDemands.splice(i, 1);
-            i--;
+          } else {
+            i++;
           }
         }
         
