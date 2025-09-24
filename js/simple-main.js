@@ -39,8 +39,7 @@ function addDemandItem(btn) {
   newItem.className = "input-row demand-item";
   newItem.innerHTML = `
     長度 <input type="number" class="demand-len" placeholder="需求長度">
-    數量 <input type="number" class="demand-qty" placeholder="需求數量">
-    <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
+    <button class="remove-btn" onclick="this.parentElement.remove()">x</button>
   `;
   itemList.appendChild(newItem);
 }
@@ -295,6 +294,9 @@ document.getElementById("clear-btn").addEventListener("click", () => {
   document.getElementById("result").innerHTML = "";
   
   console.log("已清除所有數據");
+});
+
+console.log("簡化版本已載入");g("已清除所有數據");
 });
 
 console.log("簡化版本已載入");
