@@ -301,10 +301,4 @@ document.getElementById("clear-btn").addEventListener("click", () => {
   console.log("已清除所有數據");
 });
 
-console.log("簡化版本已載入");g("已清除所有數據");
-});
-
-console.log("簡化版本已載入");載入");g("已清除所有數據");
-});
-
-console.log("簡化版本已載入");載入");
+console.log("簡化版本已載入");
