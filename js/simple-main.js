@@ -22,7 +22,7 @@ document.getElementById("add-demand-btn").addEventListener("click", () => {
   newGroup.innerHTML = `
     <div class="input-row group-header">
       管徑 <input type="text" class="demand-tube" placeholder="管徑種類">
-      <button class="remove-btn" onclick="this.closest('.demand-group').remove()">移除此管徑</button>
+      <button class="remove-btn" onclick="this.closest('.demand-group').remove()">x</button>
     </div>
     <div class="demand-item-list">
       <!-- 長度/數量項目將會加在這裡 -->
@@ -39,7 +39,7 @@ function addDemandItem(btn) {
   newItem.className = "input-row demand-item";
   newItem.innerHTML = `
     長度 <input type="number" class="demand-len" placeholder="需求長度">
-    <button class="remove-btn" onclick="this.parentElement.remove()">x</button>
+    <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
   `;
   itemList.appendChild(newItem);
 }
@@ -299,4 +299,7 @@ document.getElementById("clear-btn").addEventListener("click", () => {
 console.log("簡化版本已載入");g("已清除所有數據");
 });
 
-console.log("簡化版本已載入");
+console.log("簡化版本已載入");載入");g("已清除所有數據");
+});
+
+console.log("簡化版本已載入");載入");

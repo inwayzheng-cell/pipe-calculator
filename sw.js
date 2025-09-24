@@ -1,5 +1,5 @@
 // 版本號
-const CACHE_NAME = 'pipe-calculator-cache-v6';
+const CACHE_NAME = 'pipe-calculator-cache-v5';
 const urlsToCache = [
   '/',
   '管用料計算工具.html',
