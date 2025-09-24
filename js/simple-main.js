@@ -14,19 +14,37 @@ document.getElementById("add-stock-btn").addEventListener("click", () => {
   stockInputs.appendChild(newRow);
 });
 
-// 新增需求功能
+// 新增需求功能（已修改為分組模式）
 document.getElementById("add-demand-btn").addEventListener("click", () => {
   const demandInputs = document.getElementById("demand-inputs");
-  const newRow = document.createElement("div");
-  newRow.className = "input-row";
-  newRow.innerHTML = `
-    <span class="input-group">管徑 <input type="text" class="demand-tube" placeholder="管徑種類"></span>
-    <span class="input-group">長度 <input type="number" class="demand-len" placeholder="需求長度"></span>
-    <span class="input-group">數量 <input type="number" class="demand-qty" placeholder="需求數量"></span>
+  const newGroup = document.createElement("div");
+  newGroup.className = "demand-group";
+  newGroup.innerHTML = `
+    <div class="input-row group-header">
+      管徑 <input type="text" class="demand-tube" placeholder="管徑種類">
+      <button class="remove-btn" onclick="this.closest('.demand-group').remove()">移除此管徑</button>
+    </div>
+    <div class="demand-item-list">
+      <!-- 長度/數量項目將會加在這裡 -->
+    </div>
+    <button class="add-item-btn" onclick="addDemandItem(this)">＋ 新增長度</button>
+  `;
+  demandInputs.appendChild(newGroup);
+});
+
+// 在管徑區塊內新增長度/數量項目
+function addDemandItem(btn) {
+  const itemList = btn.previousElementSibling;
+  const newItem = document.createElement("div");
+  newItem.className = "input-row demand-item";
+  newItem.innerHTML = `
+    長度 <input type="number" class="demand-len" placeholder="需求長度">
+    數量 <input type="number" class="demand-qty" placeholder="需求數量">
     <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
   `;
-  demandInputs.appendChild(newRow);
-});
+  itemList.appendChild(newItem);
+}
+
 
 // 簡化的計算邏輯
 function simpleGrouping(stocks, demands) {
@@ -215,14 +233,20 @@ document.getElementById("run-btn").addEventListener("click", () => {
     return { type, length, qty };
   }).filter(s => !isNaN(s.length));
 
-  // 收集需求數據
-  const demands = Array.from(document.querySelectorAll("#demand-inputs .input-row")).map(div => {
-    const len = parseInt(div.querySelector(".demand-len").value);
-    const qty = parseInt(div.querySelector(".demand-qty").value);
-    const tubeInput = div.querySelector(".demand-tube");
+  // 收集需求數據（已更新為分組模式）
+  const demands = [];
+  document.querySelectorAll("#demand-inputs .demand-group").forEach(group => {
+    const tubeInput = group.querySelector(".demand-tube");
     const type = tubeInput && tubeInput.value && tubeInput.value.trim() !== '' ? tubeInput.value.trim() : '未指定';
-    return { len, qty, type };
-  }).filter(d => !isNaN(d.len) && !isNaN(d.qty));
+    
+    group.querySelectorAll(".demand-item").forEach(item => {
+      const len = parseInt(item.querySelector(".demand-len").value);
+      const qty = parseInt(item.querySelector(".demand-qty").value);
+      if (!isNaN(len) && !isNaN(qty) && qty > 0) {
+        demands.push({ len, qty, type });
+      }
+    });
+  });
 
   console.log("收集到的庫存:", stocks);
   console.log("收集到的需求:", demands);

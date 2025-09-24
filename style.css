@@ -286,3 +286,36 @@ input:focus {
   border-radius: 5px;
   cursor: pointer;
 }
+
+/* 新增的需求分組樣式 */
+.demand-group {
+  background-color: #f7f7f9;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.demand-item-list {
+  padding-left: 20px;
+  margin-top: 8px;
+  border-left: 2px solid #667eea;
+}
+
+.demand-item {
+  margin-bottom: 4px;
+}
+
+.add-item-btn {
+  background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+  color: white;
+  padding: 8px 12px;
+  margin-top: 8px;
+  margin-left: 20px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.add-item-btn:hover {
+  transform: translateY(-1px);
+}
