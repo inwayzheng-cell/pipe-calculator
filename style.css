@@ -238,3 +238,20 @@ input:focus {
   background-color: white;
   font-size: 13px;
 }
+
+@media (max-width: 600px) {
+  .input-row {
+    flex-wrap: wrap;
+    padding: 8px;
+  }
+
+  .input-row input {
+    width: calc(50% - 10px); /* 讓兩個輸入框可以並排 */
+    font-size: 13px;
+  }
+
+  .input-row .stock-type {
+    width: 100%; /* 種類欄位佔滿整行 */
+    margin-bottom: 5px;
+  }
+}
