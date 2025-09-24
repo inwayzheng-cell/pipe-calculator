@@ -20,9 +20,9 @@ document.getElementById("add-demand-btn").addEventListener("click", () => {
   const newRow = document.createElement("div");
   newRow.className = "input-row";
   newRow.innerHTML = `
-    管徑 <input type="text" class="demand-tube" placeholder="管徑種類">
-    長度 <input type="number" class="demand-len" placeholder="需求長度">
-    數量 <input type="number" class="demand-qty" placeholder="需求數量">
+    <span class="input-group">管徑 <input type="text" class="demand-tube" placeholder="管徑種類"></span>
+    <span class="input-group">長度 <input type="number" class="demand-len" placeholder="需求長度"></span>
+    <span class="input-group">數量 <input type="number" class="demand-qty" placeholder="需求數量"></span>
     <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
   `;
   demandInputs.appendChild(newRow);

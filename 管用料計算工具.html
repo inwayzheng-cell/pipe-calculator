@@ -52,10 +52,48 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then(registration => {
           console.log('ServiceWorker registration successful with scope: ', registration.scope);
+
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateBar();
+              }
+            });
+          });
+
         }, err => {
           console.log('ServiceWorker registration failed: ', err);
         });
+
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          window.location.reload();
+          refreshing = true;
+        });
       });
+    }
+
+    function showUpdateBar() {
+      let updateBar = document.getElementById('update-bar');
+      if (!updateBar) {
+        updateBar = document.createElement('div');
+        updateBar.id = 'update-bar';
+        updateBar.innerHTML = `
+          <span>有新版本可用！</span>
+          <button id="update-btn">更新</button>
+        `;
+        document.body.appendChild(updateBar);
+
+        document.getElementById('update-btn').addEventListener('click', () => {
+          navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+      }
     }
   </script>
   </div>
