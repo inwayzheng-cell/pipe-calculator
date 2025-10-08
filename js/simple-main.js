@@ -1,5 +1,6 @@
 // 用於保存最新的計算結果
 let savedResults = null;
+let savedDemands = null;
 
 // 簡化版主要邏輯 - 回到基本功能
 
@@ -276,6 +277,9 @@ document.getElementById("run-btn").addEventListener("click", () => {
     }
   });
 
+  // 儲存本次需求供匯出使用
+  savedDemands = demands;
+
   console.log("收集到的庫存:", stocks);
   console.log("收集到的需求:", demands);
   
@@ -307,7 +311,7 @@ document.getElementById("run-btn").addEventListener("click", () => {
 // 匯出按鈕事件
 document.getElementById("export-btn").addEventListener("click", () => {
   if (savedResults) {
-    exportToExcel(savedResults);
+    exportToExcel(savedResults, savedDemands);
   } else {
     alert("沒有可匯出的計算結果。請先執行計算。");
   }
@@ -329,6 +333,7 @@ document.getElementById("clear-btn").addEventListener("click", () => {
   // 禁用匯出按鈕並重置結果
   document.getElementById("export-btn").disabled = true;
   savedResults = null;
+  savedDemands = null;
   
   console.log("已清除所有數據");
 });
