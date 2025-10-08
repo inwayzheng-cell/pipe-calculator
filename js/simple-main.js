@@ -1,3 +1,6 @@
+// 用於保存最新的計算結果
+let savedResults = null;
+
 // 簡化版主要邏輯 - 回到基本功能
 
 // 新增單支最大長度功能
@@ -131,9 +134,9 @@ function simpleGrouping(stocks, demands) {
       // 如果這根庫存能放入至少一個需求，就使用它
       if (group.length > 0) {
         groups.push({
-          items: group,
+          cuts: group, // 使用 cuts 替代 items 以匹配匯出邏輯
           used: currentLength,
-          waste: currentStock.length - currentLength,
+          remainder: currentStock.length - currentLength, // 使用 remainder 替代 waste
           stockLength: currentStock.length
         });
       }
@@ -162,9 +165,9 @@ function simpleGrouping(stocks, demands) {
         
         if (group.length > 0) {
           groups.push({
-            items: group,
+            cuts: group, // 使用 cuts 替代 items
             used: currentLength,
-            waste: defaultLength - currentLength,
+            remainder: defaultLength - currentLength, // 使用 remainder 替代 waste
             stockLength: defaultLength
           });
         } else {
@@ -179,7 +182,12 @@ function simpleGrouping(stocks, demands) {
     // 創建結果
     results.push({
       stockType: tubeType,
-      groups: groups
+      stockLength: groups.length > 0 ? groups[0].stockLength : (matchingStocks[0]?.length || 5850),
+      tubeResults: {
+        [tubeType]: {
+          groups: groups
+        }
+      }
     });
   });
   
@@ -200,11 +208,11 @@ function simpleRenderResults(results) {
   
   results.forEach(result => {
     const stockType = result.stockType;
-    const groups = result.groups;
-    
-    if (!groups || groups.length === 0) {
+    const tubeData = result.tubeResults[stockType];
+    if (!tubeData || !tubeData.groups || tubeData.groups.length === 0) {
       return;
     }
+    const groups = tubeData.groups;
     
     html += `<div class="result-section">`;
     html += `<h3>${stockType}</h3>`;
@@ -212,8 +220,8 @@ function simpleRenderResults(results) {
     groups.forEach((group, index) => {
       html += `<div class="group">`;
       html += `<strong>第 ${index + 1} 根 (庫存長度: ${group.stockLength}):</strong> `;
-      html += `[${group.items.join(', ')}] `;
-      html += `使用: ${group.used}, 浪費: ${group.waste}`;
+      html += `[${group.cuts.join(', ')}] `;
+      html += `使用: ${group.used}, 餘料: ${group.remainder}`;
       html += `</div>`;
     });
     
@@ -227,6 +235,10 @@ function simpleRenderResults(results) {
 document.getElementById("run-btn").addEventListener("click", () => {
   console.log("開始簡化計算...");
   
+  // 禁用匯出按鈕並重置結果
+  document.getElementById("export-btn").disabled = true;
+  savedResults = null;
+
   // 收集庫存數據
   const stocks = Array.from(document.querySelectorAll("#stock-inputs .input-row")).map(div => {
     const length = parseInt(div.querySelector(".stock").value);
@@ -237,8 +249,9 @@ document.getElementById("run-btn").addEventListener("click", () => {
     return { type, length, qty };
   }).filter(s => !isNaN(s.length));
 
-  // 收集需求數據（已更新為分組模式）
+  // 收集需求數據（***修改處：兼容兩種模式***）
   const demands = [];
+  // 1. 處理手動分組模式
   document.querySelectorAll("#demand-inputs .demand-group").forEach(group => {
     const tubeInput = group.querySelector(".demand-tube");
     const type = tubeInput && tubeInput.value && tubeInput.value.trim() !== '' ? tubeInput.value.trim() : '未指定';
@@ -250,6 +263,17 @@ document.getElementById("run-btn").addEventListener("click", () => {
         demands.push({ len, qty, type });
       }
     });
+  });
+
+  // 2. 處理 Excel 匯入的扁平模式
+  document.querySelectorAll("#demand-inputs > .input-row").forEach(row => {
+    const tubeInput = row.querySelector(".demand-tube");
+    const type = tubeInput && tubeInput.value && tubeInput.value.trim() !== '' ? tubeInput.value.trim() : '未指定';
+    const len = parseInt(row.querySelector(".demand-len").value);
+    const qty = parseInt(row.querySelector(".demand-qty").value);
+    if (!isNaN(len) && !isNaN(qty) && qty > 0) {
+        demands.push({ len, qty, type });
+    }
   });
 
   console.log("收集到的庫存:", stocks);
@@ -268,6 +292,11 @@ document.getElementById("run-btn").addEventListener("click", () => {
   try {
     const results = simpleGrouping(stocks, demands);
     simpleRenderResults(results);
+    
+    // 保存結果並啟用匯出按鈕
+    savedResults = results;
+    document.getElementById("export-btn").disabled = false;
+
     console.log("計算完成");
   } catch (error) {
     console.error("計算錯誤:", error);
@@ -275,28 +304,31 @@ document.getElementById("run-btn").addEventListener("click", () => {
   }
 });
 
+// 匯出按鈕事件
+document.getElementById("export-btn").addEventListener("click", () => {
+  if (savedResults) {
+    exportToExcel(savedResults);
+  } else {
+    alert("沒有可匯出的計算結果。請先執行計算。");
+  }
+});
+
 // 清除功能
 document.getElementById("clear-btn").addEventListener("click", () => {
-  // 清除庫存（保留第一個）
+  // 清除庫存（除了第一個隱藏的模板）
   const stockInputs = document.getElementById("stock-inputs");
-  const stockRows = stockInputs.querySelectorAll(".input-row");
-  for (let i = 1; i < stockRows.length; i++) {
-    stockRows[i].remove();
-  }
-  
-  // 重置第一個庫存項目
-  const firstStock = stockInputs.querySelector(".input-row");
-  if (firstStock) {
-    firstStock.querySelector(".stock-type").value = "";
-    firstStock.querySelector(".stock").value = "5850";
-    firstStock.querySelector(".stock-qty").value = "1";
-  }
-  
+  const stockRows = stockInputs.querySelectorAll(".input-row:not([style*='display: none'])");
+  stockRows.forEach(row => row.remove());
+
   // 清除所有需求
   document.getElementById("demand-inputs").innerHTML = "";
   
   // 清除結果
   document.getElementById("result").innerHTML = "";
+
+  // 禁用匯出按鈕並重置結果
+  document.getElementById("export-btn").disabled = true;
+  savedResults = null;
   
   console.log("已清除所有數據");
 });

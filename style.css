@@ -1,7 +1,7 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 15px; /* 減少頁面邊距 */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   color: #333;
@@ -13,29 +13,29 @@ body {
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
-  padding: 30px;
+  padding: 20px; /* 減少容器內邊距 */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
   text-align: center;
   color: #4a5568;
-  margin-bottom: 30px;
+  margin-bottom: 20px; /* 減少主標題下邊距 */
   font-size: 1.8em;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h2, h3, h4 {
-  margin-top: 15px;
-  margin-bottom: 8px;
+  margin-top: 12px; /* 減少標題上邊距 */
+  margin-bottom: 6px; /* 減少標題下邊距 */
   color: #2d3748;
   border-left: 4px solid #667eea;
-  padding-left: 15px;
+  padding-left: 12px;
 }
 
 button {
-  margin: 8px 5px;
-  padding: 12px 20px;
+  margin: 6px 4px; /* 減少按鈕邊距 */
+  padding: 10px 18px; /* 調整按鈕內邊距 */
   cursor: pointer;
   border: none;
   border-radius: 8px;
@@ -69,11 +69,11 @@ button {
   background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
   color: white;
   padding: 8px 12px;
-  margin-left: 10px;
+  margin-left: 8px;
   border-radius: 50%;
   font-size: 12px;
-  width: 30px;
-  height: 30px;
+  width: 28px; /* 稍稍減小 */
+  height: 28px; /* 稍稍減小 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -87,8 +87,8 @@ button {
 .add-btn {
   background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
-  padding: 10px 16px;
-  margin: 10px 5px;
+  padding: 8px 14px; /* 減少按鈕內邊距 */
+  margin: 8px 4px; /* 減少按鈕邊距 */
   border-radius: 6px;
   font-size: 14px;
 }
@@ -100,9 +100,9 @@ button {
 
 input {
   margin: 2px;
-  padding: 10px;
+  padding: 8px; /* 減少輸入框內邊距 */
   width: 100px;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #e2e8f0; /* 邊框變細一點 */
   border-radius: 6px;
   font-size: 14px;
   transition: border-color 0.3s ease;
@@ -116,7 +116,7 @@ input:focus {
 
 .input-row {
   background: #f8fafc;
-  padding: 4px;
+  padding: 3px; /* 減少行內邊距 */
   margin: 2px 0;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
@@ -135,25 +135,25 @@ input:focus {
 
 #stock-container, #demand-container {
   background: #f8fafc;
-  padding: 12px;
-  margin: 8px 0;
+  padding: 10px; /* 減少區塊內邊距 */
+  margin: 6px 0; /* 減少區塊外邊距 */
   border-radius: 10px;
   border: 1px solid #e2e8f0;
 }
 
 #stock-inputs, #demand-inputs {
   background: #ffffff;
-  padding: 8px;
-  margin: 5px 0;
+  padding: 6px; /* 減少輸入區內邊距 */
+  margin: 4px 0; /* 減少輸入區外邊距 */
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  min-height: 40px;
+  min-height: 35px;
 }
 
 .file-input-container {
   display: inline-flex;
   align-items: center;
-  margin: 5px 0;
+  margin: 4px 0;
   position: relative;
 }
 
@@ -181,32 +181,32 @@ input:focus {
 }
 
 .type-result {
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* 減少結果區塊間距 */
   border: 1px solid #3f51b5;
-  padding: 12px;
+  padding: 10px;
   border-radius: 6px;
   background-color: #e8eaf6;
 }
 
 .type-result h2 {
   color: #3f51b5;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   border-bottom: 1px solid #c5cae9;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   font-size: 16px;
 }
 
 .stock-result {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
   background-color: #f9f9f9;
 }
 
 .stock-result.default-stock {
-  margin-bottom: 8px;
-  padding: 6px;
+  margin-bottom: 6px;
+  padding: 5px;
   background-color: #fafafa;
   border-color: #eee;
 }
@@ -218,23 +218,23 @@ input:focus {
 }
 
 .tube-result {
-  margin: 8px 0;
-  padding: 8px;
+  margin: 6px 0;
+  padding: 6px;
   border-left: 3px solid #4CAF50;
   background-color: #f1f8e9;
 }
 
 .tube-result h4 {
   color: #2E7D32;
-  margin: 0 0 6px 0;
+  margin: 0 0 5px 0;
   font-size: 14px;
 }
 
 .group {
   border: 1px solid #ccc;
   border-radius: 4px;
-  padding: 6px 8px;
-  margin: 6px 0;
+  padding: 5px 7px; /* 減少結果行內邊距 */
+  margin: 4px 0; /* 減少結果行外邊距 */
   background-color: white;
   font-size: 13px;
 }
@@ -249,7 +249,7 @@ input:focus {
     display: flex;
     align-items: center;
     margin-right: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 6px; /* 減少手機視圖下的邊距 */
   }
 
   .input-row input {
@@ -292,26 +292,26 @@ input:focus {
   background-color: #f7f7f9;
   border: 1px solid #e1e4e8;
   border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
+  padding: 10px; /* 減少分組內邊距 */
+  margin-bottom: 12px; /* 減少分組下邊距 */
 }
 
 .demand-item-list {
-  padding-left: 20px;
-  margin-top: 8px;
+  padding-left: 15px; /* 減少列表縮排 */
+  margin-top: 6px;
   border-left: 2px solid #667eea;
 }
 
 .demand-item {
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .add-item-btn {
   background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
   color: white;
-  padding: 8px 12px;
-  margin-top: 8px;
-  margin-left: 20px;
+  padding: 6px 10px;
+  margin-top: 6px;
+  margin-left: 15px;
   border-radius: 6px;
   font-size: 13px;
 }

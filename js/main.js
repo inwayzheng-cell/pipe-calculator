@@ -1,3 +1,6 @@
+// 用於保存最新的計算結果
+let savedResults = null;
+
 // 綁定事件
 document.getElementById("add-stock-btn").addEventListener("click", () => {
   const div = document.createElement("div");
@@ -22,6 +25,10 @@ document.getElementById("add-demand-btn").addEventListener("click", () => {
 document.getElementById("run-btn").addEventListener("click", () => {
   console.log("計算按鈕被點擊");
   
+  // 禁用匯出按鈕並重置結果
+  document.getElementById("export-btn").disabled = true;
+  savedResults = null;
+
   // 收集單支最大長度數據，包括種類、長度和數量
   const stocks = Array.from(document.querySelectorAll("#stock-inputs > div")).map(div => {
     const length = parseInt(div.querySelector(".stock").value);
@@ -58,10 +65,24 @@ document.getElementById("run-btn").addEventListener("click", () => {
     const results = runGrouping(stocks, demands);
     console.log("計算結果:", results);
     renderResults(results);
+    
+    // 保存結果並啟用匯出按鈕
+    savedResults = results;
+    document.getElementById("export-btn").disabled = false;
+
     console.log("結果渲染完成");
   } catch (error) {
     console.error("計算過程中發生錯誤:", error);
     alert("計算過程中發生錯誤，請檢查控制台獲取詳細信息");
+  }
+});
+
+// 匯出按鈕事件
+document.getElementById("export-btn").addEventListener("click", () => {
+  if (savedResults) {
+    exportToExcel(savedResults);
+  } else {
+    alert("沒有可匯出的計算結果。請先執行計算。");
   }
 });
 
@@ -93,4 +114,8 @@ document.getElementById("clear-btn").addEventListener("click", () => {
   // 清除檔案選擇
   document.getElementById("excel-file").value = "";
   document.getElementById("file-name").textContent = "未選擇檔案";
+  
+  // 禁用匯出按鈕並重置結果
+  document.getElementById("export-btn").disabled = true;
+  savedResults = null;
 });
