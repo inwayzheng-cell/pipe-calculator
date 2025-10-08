@@ -20,4 +20,4 @@
 
 您可以透過以下連結直接在線上使用此工具：
 
-[https://inwayzheng-cell.github.io/pipe-calculator/管用料計算工具.html](https://inwayzheng-cell.github.io/pipe-calculator/管用料計算工具.html)
+[https://inwayzheng-cell.github.io/pipe-calculator/](https://inwayzheng-cell.github.io/pipe-calculator/)
