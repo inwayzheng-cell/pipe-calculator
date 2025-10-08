@@ -14,13 +14,13 @@ body {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 10px;
   padding: 4px; /* 減少容器內邊距 */
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
   text-align: center;
   color: #4a5568;
-  margin-bottom: 2px; /* 減少主標題下邊距 */
+  margin: 0px 0 2px; /* 調整主標題上下邊距 */
   font-size: 1.4em;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
