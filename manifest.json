@@ -1,7 +1,7 @@
 {
   "name": "管用料計算工具",
   "short_name": "管用料計算",
-  "start_url": "管用料計算工具.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
