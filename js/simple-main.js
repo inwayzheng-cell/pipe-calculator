@@ -13,7 +13,7 @@ document.getElementById("add-stock-btn").addEventListener("click", () => {
     種類 <input type="text" class="stock-type" placeholder="管材種類">
     長度 <input type="number" class="stock" placeholder="輸入長度">
     數量 <input type="number" class="stock-qty" value="1">
-    <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
+    <button class="remove-btn" onclick="this.parentElement.remove()">X</button>
   `;
   stockInputs.appendChild(newRow);
 });
@@ -26,7 +26,7 @@ document.getElementById("add-demand-btn").addEventListener("click", () => {
   newGroup.innerHTML = `
     <div class="input-row group-header">
       管徑 <input type="text" class="demand-tube" placeholder="管徑種類">
-      <button class="remove-btn" onclick="this.closest('.demand-group').remove()">x</button>
+      <button class="remove-btn" onclick="this.closest('.demand-group').remove()">X</button>
     </div>
     <div class="demand-item-list">
       <!-- 長度/數量項目將會加在這裡 -->
@@ -44,7 +44,7 @@ function addDemandItem(btn) {
   newItem.innerHTML = `
     長度 <input type="number" class="demand-len" placeholder="需求長度">
     數量 <input type="number" class="demand-qty" value="1">
-    <button class="remove-btn" onclick="this.parentElement.remove()">移除</button>
+    <button class="remove-btn" onclick="this.parentElement.remove()">X</button>
   `;
   itemList.appendChild(newItem);
 }
