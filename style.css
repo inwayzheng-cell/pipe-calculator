@@ -221,24 +221,17 @@ input:focus {
   font-size: 13px;
 }
 
-/* 電腦版不換行 */
-.mobile-br {
-    display: none;
-}
-
 @media (max-width: 768px) {
-    /* 手機版開啟換行 */
-    .mobile-br {
-        display: block;
-        content: "";
-        margin-top: 4px; /* 增加一點行間距 */
+    h3 {
+        line-height: 1.4; /* 增加標題行高防止文字重疊 */
     }
     
-    /* 讓 small 稍微縮排，看起來更像註解 */
     h3 small {
-        display: block; 
+        display: block;    /* 強制換行 */
+        font-size: 0.85em; /* 稍微縮小字體 */
+        margin-top: 4px;   /* 與上方標題保持距離 */
+        border-left: none; /* 確保不會帶到父層的藍色邊框 */
         padding-left: 0;
-        line-height: 1.4;
     }
 }
   /* 1. 核心：允許輸入行在寬度不足時自動換行 */
