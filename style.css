@@ -222,25 +222,48 @@ input:focus {
 }
 
 @media (max-width: 768px) {
+  /* 1. 核心：允許輸入行在寬度不足時自動換行 */
   .input-row {
-    flex-wrap: nowrap;
+    flex-wrap: wrap; 
     justify-content: flex-start;
+    padding: 10px 8px; /* 增加間距更好點擊 */
+    gap: 8px; /* 欄位之間的間隔 */
   }
 
-  .input-group {
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
-    margin-bottom: 6px; /* 減少手機視圖下的邊距 */
-  }
-
+  /* 2. 讓每個輸入區塊（標籤+輸入框）自動分配寬度 */
   .input-row input {
-    width: 85px;
-    flex-shrink: 1;
+    flex: 1 1 70px; /* 寬度最小 70px，剩餘空間自動撐開 */
+    width: 0; /* 讓 flex-grow 正常運作 */
+    min-width: 0;
+    padding: 8px 5px;
   }
 
+  /* 3. 針對「種類」或「規格」名稱，給予較大的縮放比例 */
+  .stock-type, .demand-tube {
+    flex: 2 1 120px !important;
+  }
+
+  /* 4. 修正刪除按鈕的位置，確保它在換行後也能靠右 */
   .remove-btn {
     margin-left: auto;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+  }
+
+  /* 5. 針對控制面板按鈕做兩兩併排，避免按鈕擠成一團 */
+  .control-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px 4px;
+  }
+
+  .control-panel button {
+    width: 100%;
+    margin: 0;
+    padding: 12px 2px;
+    font-size: 13px;
   }
 }
 
