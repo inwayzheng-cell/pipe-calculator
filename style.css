@@ -244,86 +244,150 @@ input {
 }
 
 @media (max-width: 768px) {
-  /* 1. 容器設定：增加內距給刪除按鈕留空間 */
+  /* 減少整體邊距 */
+  body {
+    padding: 2px;
+  }
+  
+  .container {
+    width: 98%;
+    padding: 2px;
+  }
+  
+  h1 {
+    font-size: 1.2em;
+    margin: 5px 0;
+  }
+  
+  h2, h3, h4 {
+    font-size: 1em;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    padding-left: 8px;
+  }
+  
+  /* 輸入行設定 */
   .input-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    padding: 15px 45px 15px 15px; /* 右側留 45px 給刪除鈕 */
+    gap: 8px;
+    padding: 10px 40px 10px 10px; /* 右側留空間給刪除鈕 */
     align-items: center;
     position: relative;
-    background: #fff;
-    border-radius: 8px;
-    /* border: 1px solid #f0f0f0; 可選：加邊框讓區塊更明顯 */
+    margin: 4px 0;
   }
-
-  /* 2. 輸入框通用樣式 */
+  
+  /* 所有輸入框基礎樣式 */
   .input-row input {
-    padding: 12px;
-    font-size: 16px; /* 防止 iOS 自動縮放 */
+    padding: 8px;
+    font-size: 16px; /* 防止 iOS 縮放 */
     border: 1px solid #ddd;
     border-radius: 6px;
     box-sizing: border-box;
     background: #f9f9f9;
-  }
-
-  /* 3. 隱藏純文字標籤 (若你需要保留提示，建議改用 placeholder) */
-  /* 如果 HTML 結構是 <span>長度</span><input>，這裡會隱藏 span */
-  .input-row > span:not(.remove-btn),
-  .input-row > label {
-    display: none; 
+    margin: 2px 0;
   }
   
-  /* 重要：確保 Input 有 placeholder 提示，否則用戶會不知道填什麼 */
-  /* 如果無法改 HTML，請註解掉上面的 display:none，並用下面的樣式讓 label 變小 */
-  /* 
+  /* 標籤處理：縮小顯示而非完全隱藏 */
   .input-row > span {
     font-size: 12px;
-    color: #888;
-    width: 100%;
-    margin-bottom: -5px;
-  } 
-  */
-
-  /* 4. 針對「規格/種類」這類大輸入框：佔滿全寬 */
-  /* 這裡假設你的 HTML 結構中，第一個 input 是主要欄位 */
-  .input-row input:first-child,
+    color: #666;
+    min-width: 35px;
+    font-weight: 600;
+  }
+  
+  /* 規格/種類輸入框：全寬 */
   .input-row input[type="text"] {
     width: 100%;
     flex: 1 1 100%;
   }
-
-  /* 5. 針對「長度」與「數量」：並排顯示 */
-  /* 這裡利用 input 的類型或特定 class 來區分，如果沒有 class，可以用 :nth-child */
-  /* 假設結構是：[長度Input] [數量Input] */
-  .input-row input[type="number"],
-  .input-row input.input-length,
-  .input-row input.input-qty {
-    width: 48%; /* 各佔約一半 */
-    flex: 1 1 48%;
+  
+  /* 長度與數量：並排顯示 */
+  .input-row input[type="number"] {
+    width: calc(50% - 4px);
+    flex: 1 1 calc(50% - 4px);
   }
-
-  /* 6. 刪除按鈕：絕對定位在右側 */
+  
+  /* 刪除按鈕定位 */
   .remove-btn {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #ff4d4f;
-    color: white;
-    border: none;
-    font-size: 18px;
-    line-height: 1;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
     padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin: 0;
     z-index: 10;
+  }
+  
+  /* 按鈕樣式調整 */
+  button {
+    margin: 4px 2px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  /* 新增按鈕全寬 */
+  .add-btn {
+    width: calc(50% - 4px);
+    margin: 4px 2px;
+  }
+  
+  /* 檔案上傳區 */
+  .file-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  #file-name {
+    margin-left: 0;
+    margin-top: 5px;
+    text-align: center;
+  }
+  
+  /* 控制按鈕區 */
+  .control-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  
+  .control-panel button {
+    width: 100%;
+    margin: 2px;
+  }
+}
+
+/* 超小螢幕（小於 480px）*/
+@media (max-width: 480px) {
+  .input-row {
+    padding: 8px 35px 8px 8px;
+    gap: 6px;
+  }
+  
+  .input-row > span {
+    font-size: 11px;
+    min-width: 30px;
+  }
+  
+  .input-row input {
+    padding: 6px;
+    font-size: 14px;
+  }
+  
+  .remove-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    right: 5px;
+  }
+  
+  button {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 }
 
