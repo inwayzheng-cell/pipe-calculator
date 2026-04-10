@@ -525,7 +525,7 @@
       // E. 清除功能
       document.getElementById('clear-results-btn').onclick = () => {
         if (!confirm("清除計算結果與自定庫存？(需求列表保留)")) return;
-        resultContainer.innerHTML = '<div class="placeholder">尚未有計算結果，請點擊上方按鈕開始。</div>';
+        resultContainer.innerHTML = '<div class="placeholder">尚未計算，請點擊計算開始。</div>';
         exportBtn.disabled = true;
         savedResults = null;
         savedDemands = null;
