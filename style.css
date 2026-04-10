@@ -249,7 +249,7 @@ input:focus {
 
     .input-row input {
         width: 100%;    /* 讓輸入框在組內撐開 */
-        max-width: 80px; /* 限制手機版輸入框不要太長 */
+        max-width: 70px; /* 限制手機版輸入框不要太長 */
         flex: 1;
     }
 }
