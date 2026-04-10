@@ -234,67 +234,54 @@ input:focus {
         padding-left: 0;
     }
 }
-/* 讓「文字+輸入框」成為一個不拆散的單元 */
-.input-unit {
-    display: inline-flex;
+
+  /* 1. 確保每一行可以換行，並稍微增加垂直間距 */
+  .input-row {
+    flex-wrap: wrap !important; 
+    padding: 12px 8px;
+    gap: 10px 5px; /* 垂直間距 10px, 水平間距 5px */
     align-items: center;
-    gap: 5px;
-    white-space: nowrap; /* 強制文字不換行 */
-    flex: 1 1 auto;      /* 讓長度與數量平分空間 */
-}
+  }
 
-.input-unit span {
-    font-size: 14px;
-    color: #4a5568;
-    flex-shrink: 0;      /* 防止標籤文字被壓扁 */
-}
-
-/* 手機版響應式優化 */
-@media (max-width: 768px) {
-    .input-row.demand-item {
-        flex-wrap: wrap !important; /* 空間不夠時允許整組換行 */
-        gap: 8px !important;
-        padding: 8px !important;
-    }
-
-    .input-unit input {
-        width: 0;           /* 配合 flex-grow 使用 */
-        flex: 1 1 65px;     /* 最小 65px，確保一排能塞下兩組 */
-        min-width: 0;
-        padding: 8px 4px;
-    }
-
-    .remove-btn {
-        margin-left: auto;  /* ✕ 按鈕強制靠右 */
-    }
-}
-
-  /* 3. 針對「種類」或「規格」名稱，給予較大的縮放比例 */
+  /* 2. 讓「種類/規格」這類長文字輸入框佔據整行或大部分 */
   .stock-type, .demand-tube {
-    flex: 2 1 120px !important;
+    flex: 1 1 100% !important; /* 在手機上強迫佔滿一行，讓後面的長度數量換行 */
+    margin-bottom: 5px;
   }
 
-  /* 4. 修正刪除按鈕的位置，確保它在換行後也能靠右 */
+  /* 3. 強迫「長度」和「數量」這類數字輸入框在空間不足時至少佔 45% */
+  .input-row input[type="number"], 
+  .input-row input[type="text"]:not(.stock-type):not(.demand-tube) {
+    flex: 1 1 40% !important; 
+    min-width: 80px;
+    width: 0;
+  }
+
+  /* 4. 針對「文字標籤」與「輸入框」的排版優化 */
+  /* 如果你的 HTML 結構是文字接 input，這會確保它們不會斷開 */
+  .input-row {
+    font-size: 13px;
+    color: #555;
+  }
+
+  /* 5. 修正刪除按鈕：讓它始終有自己的位置，不被擠壓 */
   .remove-btn {
+    flex: 0 0 30px;
     margin-left: auto;
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
   }
 
-  /* 5. 針對控制面板按鈕做兩兩併排，避免按鈕擠成一團 */
+  /* 6. 控制面板按鈕優化 */
   .control-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 10px 4px;
+    gap: 10px;
+    padding: 10px 0;
   }
 
   .control-panel button {
-    width: 100%;
     margin: 0;
-    padding: 12px 2px;
     font-size: 13px;
+    padding: 15px 5px;
   }
 }
 
