@@ -236,19 +236,23 @@ input:focus {
 }
   /* 1. 核心：允許輸入行在寬度不足時自動換行 */
   .input-row {
-    flex-wrap: wrap; 
-    justify-content: flex-start;
-    padding: 10px 8px; /* 增加間距更好點擊 */
-    gap: 8px; /* 欄位之間的間隔 */
-  }
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
 
-  /* 2. 讓每個輸入區塊（標籤+輸入框）自動分配寬度 */
-  .input-row input {
-    flex: 1 1 70px; /* 寬度最小 70px，剩餘空間自動撐開 */
-    width: 0; /* 讓 flex-grow 正常運作 */
-    min-width: 0;
-    padding: 8px 5px;
-  }
+    /* 讓「長度」與「數量」文字跟著框走 */
+    .input-row input {
+        display: inline-block;
+        width: 65px !important; /* 縮小輸入框寬度 */
+        margin-right: 10px;      /* 留空間給後面的文字 */
+        flex: none;             /* 關閉自動撐開防止擠壓 */
+    }
+
+    /* 確保刪除按鈕最後才換行 */
+    .remove-btn {
+        margin-left: auto;
+    }
+}
 
   /* 3. 針對「種類」或「規格」名稱，給予較大的縮放比例 */
   .stock-type, .demand-tube {
