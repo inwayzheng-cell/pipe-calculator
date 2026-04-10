@@ -234,23 +234,28 @@ input:focus {
         padding-left: 0;
     }
 }
-  /* 1. 核心：允許輸入行在寬度不足時自動換行 */
-  .input-row {
-        display: flex;
-        flex-wrap: wrap; /* 允許「整組」換行，但不允許「組內」換行 */
-        gap: 8px;
-        padding: 10px;
+/* 1. 強制讓「文字+輸入框」成為一個不拆散的整體 */
+.input-unit {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap; /* 絕對禁止內部換行 */
+    gap: 4px;            /* 文字與框的間距 */
+}
+
+/* 2. 手機版特別優化 */
+@media (max-width: 768px) {
+    .input-row {
+        flex-wrap: wrap !important; /* 允許整組換行 */
+        gap: 8px !important;
     }
 
-    /* 讓 長度組、數量組 在空間不足時才整組跳下一行 */
-    .input-group {
-        min-width: 120px; /* 設定一個最小寬度，確保 標籤+框 擠在一起 */
+    .input-unit input {
+        width: 65px !important;    /* 縮小輸入框，確保一行能塞下兩組 */
+        flex: none !important;     /* 防止被彈性佈局拉長 */
     }
 
-    .input-row input {
-        width: 100%;    /* 讓輸入框在組內撐開 */
-        max-width: 70px; /* 限制手機版輸入框不要太長 */
-        flex: 1;
+    .remove-btn {
+        margin-left: auto !important; /* 刪除按鈕靠右 */
     }
 }
 
