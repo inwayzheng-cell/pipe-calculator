@@ -222,34 +222,55 @@ input:focus {
 }
 
 @media (max-width: 768px) {
-  /* 1. 允許內容在寬度不足時自動換行 */
+  /* 1. 基礎行樣式 */
   .input-row {
-    flex-wrap: wrap; 
-    justify-content: flex-start;
-    padding: 8px 6px;
-    gap: 6px;
+    flex-wrap: wrap !important;
+    padding: 10px 5px;
+    gap: 8px 4px;
+    align-items: center;
   }
 
-  /* 2. 讓輸入框自動伸縮，不再死守 85px */
+  /* 2. 讓所有的文字標籤 (種類、長度、數量等) 在手機上變小，避免擠壓 */
+  .input-row span, 
+  .input-row label {
+    font-size: 12px;
+    color: #666;
+    flex-shrink: 0;
+    margin-right: 2px;
+  }
+
+  /* 3. 輸入框寬度優化：使用 calc 確保它們在同一行 */
   .input-row input {
-    flex: 1 1 60px; /* 最小 60px，剩餘空間自動分配 */
-    width: 0; /* 必須設為 0 才能讓 flex 縮放生效 */
-    min-width: 0;
+    flex: 1 1 auto; /* 彈性縮放 */
+    min-width: 0;   /* 允許縮小到比內容小 */
+    width: 60px;    /* 給一個基礎寬度 */
     padding: 8px 4px;
+    font-size: 14px;
   }
 
-  /* 3. 針對種類/管徑輸入框，給予較大的縮放比例 */
+  /* 4. 針對「種類/規格」輸入框：強迫佔據較多空間 */
   .stock-type, .demand-tube {
-    flex: 2 1 100px !important;
+    flex: 1 1 100% !important; /* 強制換行或佔滿 */
+    margin-bottom: 4px;
   }
 
-  /* 4. 修正刪除按鈕位置 */
+  /* 5. 針對「長度與數量」：讓它們在同一排，各佔一半寬度 */
+  .demand-item .demand-len, 
+  .demand-item .demand-qty,
+  .stock, .stock-qty {
+    flex: 1 1 35% !important; /* 讓它們有機會併排 */
+  }
+
+  /* 6. 修正刪除按鈕：不佔用縮放空間 */
   .remove-btn {
+    flex: 0 0 26px;
+    height: 26px;
+    width: 26px;
+    padding: 0;
     margin-left: auto;
-    flex-shrink: 0; /* 防止按鈕被壓扁 */
   }
 
-  /* 5. 優化控制面板按鈕，改為兩兩並排防止超出 */
+  /* 7. 下方功能按鈕改為兩兩併排 */
   .control-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -258,10 +279,9 @@ input:focus {
   }
 
   .control-panel button {
-    width: 100%;
     margin: 0;
-    padding: 12px 4px;
-    font-size: 13px;
+    width: 100%;
+    padding: 12px 2px;
   }
 }
 
