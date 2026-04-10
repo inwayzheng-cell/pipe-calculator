@@ -38,9 +38,17 @@ window.addDemandItem = function(btn) {
     const itemList = btn.previousElementSibling;
     const newItem = document.createElement("div");
     newItem.className = "input-row demand-item";
+    
+    // 使用 label 包裝，確保「文字+輸入框」在手機版不會被拆散換行
     newItem.innerHTML = `
-        長度 <input type="number" class="demand-len" placeholder="長度">
-        數量 <input type="number" class="demand-qty" value="1">
+        <label class="input-unit">
+            <span>長度</span>
+            <input type="number" class="demand-len" placeholder="長度">
+        </label>
+        <label class="input-unit">
+            <span>數量</span>
+            <input type="number" class="demand-qty" value="1">
+        </label>
         <button type="button" class="remove-btn" onclick="this.parentElement.remove()">✕</button>
     `;
     itemList.appendChild(newItem);

@@ -234,28 +234,38 @@ input:focus {
         padding-left: 0;
     }
 }
-/* 1. 強制讓「文字+輸入框」成為一個不拆散的整體 */
+/* 讓「文字+輸入框」成為一個不拆散的單元 */
 .input-unit {
     display: inline-flex;
     align-items: center;
-    white-space: nowrap; /* 絕對禁止內部換行 */
-    gap: 4px;            /* 文字與框的間距 */
+    gap: 5px;
+    white-space: nowrap; /* 強制文字不換行 */
+    flex: 1 1 auto;      /* 讓長度與數量平分空間 */
 }
 
-/* 2. 手機版特別優化 */
+.input-unit span {
+    font-size: 14px;
+    color: #4a5568;
+    flex-shrink: 0;      /* 防止標籤文字被壓扁 */
+}
+
+/* 手機版響應式優化 */
 @media (max-width: 768px) {
-    .input-row {
-        flex-wrap: wrap !important; /* 允許整組換行 */
+    .input-row.demand-item {
+        flex-wrap: wrap !important; /* 空間不夠時允許整組換行 */
         gap: 8px !important;
+        padding: 8px !important;
     }
 
     .input-unit input {
-        width: 65px !important;    /* 縮小輸入框，確保一行能塞下兩組 */
-        flex: none !important;     /* 防止被彈性佈局拉長 */
+        width: 0;           /* 配合 flex-grow 使用 */
+        flex: 1 1 65px;     /* 最小 65px，確保一排能塞下兩組 */
+        min-width: 0;
+        padding: 8px 4px;
     }
 
     .remove-btn {
-        margin-left: auto !important; /* 刪除按鈕靠右 */
+        margin-left: auto;  /* ✕ 按鈕強制靠右 */
     }
 }
 
