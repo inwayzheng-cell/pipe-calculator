@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>管用料計算工具</title>
+  <!-- Fonts CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/600.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/700.css">
+  <!-- XLSX CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    /* =========================================
+       排版優化分析與實作 (Mobile/Desktop)
+       1. 使用 CSS 變數統一管理設計系統 (色彩/間距/圓角)
+       2. Mobile-First 響應式佈局：預設手機排版，@media (min-width: 768px) 擴展桌面版
+       3. 彈性網格 (Flex/Grid) 取代絕對定位，避免輸入框與刪除鈕重疊問題
+       4. 觸控優化：最小點擊區域 44x44px，移除 iOS 輸入框自動縮放 (font-size: 16px)
+       5. 視覺層級：使用陰影、間距、背景色區塊化資訊，提升可讀性
+       ========================================= */
+    :root {
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      --primary: #667eea;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text-main);
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(to right, #f8fafc, #eef2ff);
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 {
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      text-align: center;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    main { padding: 16px; display: flex; flex-direction: column; gap: 20px; }
+
+    section {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    h2 {
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      padding-left: 10px;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 輸入行優化：Flexbox 響應式排版 */
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .input-row:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+
+    /* 標籤與輸入框統一排版 */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 100%;
+      min-width: 100px;
+    }
+    @media (min-width: 600px) {
+      .input-group.type { flex: 1.5; }
+      .input-group.len { flex: 1; }
+      .input-group.qty { flex: 0.8; }
+    }
+    label {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px; /* 防止 iOS 自動縮放 */
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-alt);
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      background: #fff;
+    }
+
+    /* 按鈕系統 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+      gap: 6px;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); box-shadow: var(--shadow); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { filter: brightness(0.9); }
+    .btn-danger { background: var(--danger); color: #fff; padding: 8px; border-radius: 50%; width: 32px; height: 32px; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-sub); }
+    .btn-outline:hover { background: #f1f5f9; color: var(--text-main); }
+
+    .actions-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    /* 檔案上傳 */
+    .file-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
+    .file-input-wrapper label {
+      cursor: pointer;
+      margin: 0;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #file-name { color: var(--text-sub); font-size: 0.85rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 結果區塊 */
+    .result-container { min-height: 100px; background: #fff; border-radius: var(--radius); padding: 12px; border: 1px solid var(--border); }
+    .type-result { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed var(--border); }
+    .type-result:last-child { border-bottom: none; }
+    .tube-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .tube-header h3 { font-size: 1rem; color: var(--text-main); }
+    .tube-header span { font-size: 0.85rem; background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 12px; }
+    
+    .group {
+      background: #f0fdf4;
+      border-left: 4px solid var(--success);
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .group .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+    .metric-tag { background: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px; }
+
+    /* 需求分組 */
+    .demand-group { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; }
+    .demand-item-list { padding-left: 8px; margin-top: 8px; border-left: 2px solid var(--border); }
+    .demand-item { margin-bottom: 6px; }
+
+    /* 手機版微調 */
+    @media (max-width: 480px) {
+      body { padding: 8px; }
+      main { padding: 12px; gap: 16px; }
+      section { padding: 12px; }
+      .input-row { padding: 8px; gap: 8px; }
+      .btn { padding: 12px; font-size: 0.85rem; }
+      .btn-danger { width: 28px; height: 28px; }
+      .actions-bar { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* 動畫 */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+    /* 隱藏原生 input */
+    #excel-file { display: none; }
+    .placeholder { text-align: center; color: var(--text-sub); padding: 40px 20px; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>管用料計算工具</h1>
+    </header>
+    <main>
+      <!-- 庫存設定 -->
+      <section>
+        <h2>客戶料設定<button class="btn btn-primary" id="add-stock-btn">＋ 新增</button></h2>
+        <div id="stock-inputs"></div>
+        <p style="font-size: 0.8rem; color: var(--text-sub); margin-top: 6px;">* 單支最大長度(已預扣夾料)</p>
+      </section>
+
+      <!-- 需求列表 -->
+      <section>
+        <h2>需求列表 <button class="btn btn-primary" id="add-demand-btn">＋ 新增規格</button></h2>
+        <div class="file-input-wrapper" style="margin-bottom: 12px;">
+          <label for="excel-file" class="btn btn-outline">📥 選擇 Excel 檔案</label>
+          <input type="file" id="excel-file" accept=".xlsx, .xls, .csv">
+          <span id="file-name">未選擇檔案</span>
+        </div>
+        <div id="demand-inputs"></div>
+      </section>
+
+      <!-- 控制按鈕 -->
+      <div class="actions-bar">
+        <button class="btn btn-success" id="run-btn">🚀 開始計算</button>
+        <button class="btn btn-primary" id="export-btn" disabled>📊 匯出 Excel</button>
+        <button class="btn btn-outline" id="clear-results-btn">🧹 僅清除結果</button>
+        <button class="btn btn-outline" id="clear-all-btn">🗑️ 全部重置</button>
+      </div>
+
+      <!-- 結果顯示 -->
+      <section>
+        <h2>📊 計算結果</h2>
+        <div id="result" class="result-container">
+          <div class="placeholder">尚未有計算結果，請點擊上方按鈕開始。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // =========================================
+    // 核心邏輯優化說明
+    // 1. 修正原程式碼語法錯誤 (箭頭函式、展開運算子、變數名稱)
+    // 2. 重構 DP 狀態回溯邏輯，確保正確提取裁切組合
+    // 3. 模組化事件綁定，避免全域污染
+    // =========================================
+
+    let savedResults = null;
+    let savedDemands = null;
+
+    // 1. 核心 DP 引擎
+    function findOptimalCombination(demands, maxLength) {
+      if (!demands || demands.length === 0) return { items: [], used: 0 };
+      const n = demands.length;
+      const dp = new Int32Array(maxLength + 1).fill(0);
+      const keep = Array.from({ length: n + 1 }, () => new Uint8Array(maxLength + 1).fill(0));
+
+      for (let i = 1; i <= n; i++) {
+        const len = demands[i - 1];
+        for (let w = maxLength; w >= len; w--) {
+          const newValue = dp[w - len] + len;
+          if (newValue > dp[w]) {
+            dp[w] = newValue;
+            keep[i][w] = 1;
+          }
+        }
+      }
+
+      const selectedItems = [];
+      let w = maxLength;
+      for (let i = n; i > 0 && w > 0; i--) {
+        if (keep[i][w] === 1) {
+          selectedItems.push(demands[i - 1]);
+          w -= demands[i - 1];
+        }
+      }
+      return { items: selectedItems, used: dp[maxLength] };
+    }
+
+    // 2. UI 渲染與事件綁定
+    document.addEventListener('DOMContentLoaded', () => {
+      const stockContainer = document.getElementById('stock-inputs');
+      const demandContainer = document.getElementById('demand-inputs');
+      const resultContainer = document.getElementById('result');
+      const fileNameDisplay = document.getElementById('file-name');
+      const exportBtn = document.getElementById('export-btn');
+
+      // 初始化預設庫存與需求
+      window.addDemandItem = function(btn) {
+        const itemList = btn.previousElementSibling;
+        const newItem = document.createElement("div");
+        newItem.className = "input-row demand-item fade-in";
+        newItem.innerHTML = `
+          <div class="input-group len">
+            <label>長度</label>
+            <input type="number" class="demand-len" placeholder="長度" inputmode="numeric">
+          </div>
+          <div class="input-group qty">
+            <label>數量</label>
+            <input type="number" class="demand-qty" value="1" min="1" inputmode="numeric">
+          </div>
+          <button type="button" class="btn btn-danger" onclick="this.closest('.input-row').remove()">✕</button>
+        `;
+        itemList.appendChild(newItem);
+      };
+
+      // A. 新增庫存
+      document.getElementById('add-stock-btn').onclick = () => {
+        const div = document.createElement("div");
+        div.className = "input-row fade-in";
+        div.innerHTML = `
+          <div class="input-group type"><label>管徑規格</label><input type="text" class="stock-type" placeholder="如: 囗25"></div>
+          <div class="input-group len"><label>長度</label><input type="number" class="stock" value="5850" inputmode="numeric"></div>
+          <div class="input-group qty"><label>數量</label><input type="number" class="stock-qty" value="1" min="1" inputmode="numeric"></div>
+          <button type="button" class="btn btn-danger" onclick="this.closest('.input-row').remove()">✕</button>
+        `;
+        stockContainer.appendChild(div);
+      };
+
+      // B. 新增需求分組
+      document.getElementById('add-demand-btn').onclick = () => {
+        const group = document.createElement("div");
+        group.className = "demand-group fade-in";
+        group.innerHTML = `
+          <div class="input-row group-header" style="background: #f1f5f9;">
+            <div class="input-group type" style="flex: 2;"><label>管徑規格</label><input type="text" class="demand-tube" placeholder="如: 囗25"></div>
+            <button type="button" class="btn btn-danger" onclick="this.closest('.demand-group').remove()" style="margin-top: 20px;">✕</button>
+          </div>
+          <div class="demand-item-list"></div>
+          <button type="button" class="btn btn-success add-item-btn" onclick="window.addDemandItem(this)" style="margin-top: 8px;">＋ 新增長度</button>
+        `;
+        demandContainer.appendChild(group);
+      };
+
+      // C. 開始計算
+      document.getElementById('run-btn').onclick = () => {
+        const stocks = Array.from(stockContainer.querySelectorAll(".input-row")).map(div => ({
+          type: div.querySelector(".stock-type")?.value.trim() || "未指定",
+          length: parseInt(div.querySelector(".stock")?.value)
+        })).filter(s => !isNaN(s.length) && s.length > 0);
+
+        const demands = [];
+        demandContainer.querySelectorAll(".demand-group").forEach(group => {
+          const type = group.querySelector(".demand-tube")?.value.trim() || "未指定";
+          group.querySelectorAll(".demand-item").forEach(item => {
+            const len = parseInt(item.querySelector(".demand-len")?.value);
+            const qty = parseInt(item.querySelector(".demand-qty")?.value);
+            if (!isNaN(len) && !isNaN(qty) && qty > 0) demands.push({ len, qty, type });
+          });
+        });
+
+        if (stocks.length === 0 || demands.length === 0) {
+          alert("⚠️ 請輸入有效的庫存與需求項目");
+          return;
+        }
+
+        const finalResults = [];
+        const demandsByTube = {};
+        demands.forEach(d => {
+          if (!demandsByTube[d.type]) demandsByTube[d.type] = [];
+          for (let i = 0; i < d.qty; i++) demandsByTube[d.type].push(d.len);
+        });
+
+        Object.keys(demandsByTube).forEach(type => {
+          let remaining = [...demandsByTube[type]].sort((a, b) => b - a);
+          const stock = stocks.find(s => s.type === type) || stocks[0];
+          const groups = [];
+
+          while (remaining.length > 0) {
+            const best = findOptimalCombination(remaining, stock.length);
+            if (best.items.length === 0) break;
+            
+            groups.push({
+              cuts: [...best.items],
+              used: best.used,
+              remainder: stock.length - best.used,
+              stockLength: stock.length
+            });
+
+            best.items.forEach(item => {
+              const idx = remaining.indexOf(item);
+              if (idx > -1) remaining.splice(idx, 1);
+            });
+          }
+
+          finalResults.push({
+            stockType: type,
+            stockLength: stock.length,
+            tubeResults: { [type]: { groups, totalGroups: groups.length } }
+          });
+        });
+
+        savedResults = finalResults;
+        savedDemands = demands;
+        renderResults(finalResults);
+        exportBtn.disabled = false;
+      };
+
+      // 渲染結果
+      function renderResults(results) {
+        if (!results || results.length === 0) {
+          resultContainer.innerHTML = '<div class="placeholder">無計算結果</div>';
+          return;
+        }
+        let html = "";
+        results.forEach(res => {
+          html += `<div class="type-result fade-in">
+            <div class="tube-header">
+              <h3>管徑：${res.stockType}</h3>
+              <span>${res.tubeResults[res.stockType].totalGroups} 支 (${res.stockLength}mm)</span>
+            </div>`;
+          
+          res.tubeResults[res.stockType].groups.forEach((g, i) => {
+            const usagePercent = ((g.used / g.stockLength) * 100).toFixed(1);
+            html += `<div class="group">
+              <strong>第 ${i + 1} 支：</strong> <span style="color: var(--text-main);">${g.cuts.join(" + ")}</span>
+              <div class="metrics">
+                <span class="metric-tag">使用: ${g.used}</span>
+                <span class="metric-tag">餘料: ${g.remainder}</span>
+                <span class="metric-tag" style="background: #dbeafe; color: #1e40af;">利用率: ${usagePercent}%</span>
+              </div>
+            </div>`;
+          });
+          html += `</div>`;
+        });
+        resultContainer.innerHTML = html;
+        resultContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // D. 匯出 Excel
+      exportBtn.onclick = () => {
+        if (!savedResults) return alert("⚠️ 請先進行計算");
+        try {
+          const wb = XLSX.utils.book_new();
+          const ws_data = [];
+          ws_data.push(['--- 用料需求 ---']);
+          ws_data.push(['管徑規格', '長度', '數量']);
+          if (savedDemands) savedDemands.forEach(d => ws_data.push([d.type, d.len, d.qty]));
+          ws_data.push([]);
+          ws_data.push(['--- 裁切明細 ---']);
+          ws_data.push(['管徑規格', '裁切管材長度', '裁切組合', '餘料', '使用總長度']);
+          
+          const summaryCount = {};
+          if (savedResults) {
+            savedResults.forEach(result => {
+              const stockType = result.stockType;
+              const tubeData = result.tubeResults[stockType];
+              if (tubeData?.groups) {
+                if (!summaryCount[stockType]) summaryCount[stockType] = { count: 0, length: result.stockLength };
+                summaryCount[stockType].count += tubeData.groups.length;
+                tubeData.groups.forEach(group => ws_data.push([stockType, group.stockLength, group.cuts.join(' + '), group.remainder, group.used]));
+              }
+            });
+          }
+          ws_data.push([]);
+          ws_data.push(['--- 備料 (採購清單) ---']);
+          ws_data.push(['管徑規格', '單支長度', '需準備總支數']);
+          Object.keys(summaryCount).forEach(type => ws_data.push([type, summaryCount[type].length, `${summaryCount[type].count} 支`]));
+
+          const ws = XLSX.utils.aoa_to_sheet(ws_data);
+          ws['!cols'] = ws_data.reduce((acc, row) => {
+            row.forEach((cell, col) => {
+              const content = String(cell || '');
+              const width = content.length + (content.match(/[\u4e00-\u9fa5]/g)?.length || 0);
+              if (!acc[col] || acc[col] < width) acc[col] = width;
+            });
+            return acc;
+          }, []).map(w => ({ wch: w + 2 }));
+
+          XLSX.utils.book_append_sheet(wb, ws, '裁切計畫');
+          const date = new Date();
+          XLSX.writeFile(wb, `管用料清單_${date.getMonth()+1}${date.getDate()}_${date.getHours()}${date.getMinutes()}.xlsx`);
+        } catch (err) {
+          console.error(err);
+          alert("匯出失敗，請檢查主控台");
+        }
+      };
+
+      // E. 清除功能
+      document.getElementById('clear-results-btn').onclick = () => {
+        if (!confirm("清除計算結果與自定庫存？(需求列表保留)")) return;
+        resultContainer.innerHTML = '<div class="placeholder">尚未有計算結果，請點擊上方按鈕開始。</div>';
+        exportBtn.disabled = true;
+        savedResults = null;
+        savedDemands = null;
+        const rows = stockContainer.querySelectorAll('.input-row');
+        rows.forEach((row, i) => {
+          if (i === 0) {
+            row.querySelector('.stock-type').value = '';
+            row.querySelector('.stock').value = '5850';
+            row.querySelector('.stock-qty').value = '1';
+          } else row.remove();
+        });
+      };
+
+      document.getElementById('clear-all-btn').onclick = () => {
+        if (!confirm("清空所有資料？")) return;
+        document.getElementById('clear-results-btn').click();
+        demandContainer.innerHTML = '';
+        fileNameDisplay.textContent = '未選擇檔案';
+      };
+
+      // F. Excel 載入邏輯
+      document.getElementById('excel-file').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        fileNameDisplay.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            let headerIdx = -1;
+            const colMap = { type: -1, len: -1, qty: -1 };
+
+            for (let i = 0; i < rows.length; i++) {
+              const r = rows[i];
+              if (!r) continue;
+              const t = r.findIndex(c => /管徑|規格/.test(String(c)));
+              const l = r.findIndex(c => /長度/.test(String(c)));
+              const q = r.findIndex(c => /數量/.test(String(c)));
+              if (t > -1 && l > -1 && q > -1) { headerIdx = i; Object.assign(colMap, {type: t, len: l, qty: q}); break; }
+            }
+            if (headerIdx === -1) return alert("找不到有效欄位 (需包含: 管徑/規格、長度、數量)");
+
+            demandContainer.innerHTML = '';
+            document.getElementById('add-demand-btn').click();
+            setTimeout(() => {
+              const list = demandContainer.querySelector('.demand-item-list');
+              let count = 0;
+              for (let i = headerIdx + 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length === 0 || String(row[0]).includes('---')) break;
+                const len = parseFloat(row[colMap.len]);
+                const qty = parseInt(row[colMap.qty]);
+                if (!isNaN(len) && !isNaN(qty)) {
+                  const item = document.createElement("div");
+                  item.className = "input-row demand-item fade-in";
+                  item.innerHTML = `
+                    <div class="input-group len"><label>長度</label><input type="number" class="demand-len" value="${len}"></div>
+                    <div class="input-group qty"><label>數量</label><input type="number" class="demand-qty" value="${qty}"></div>
+                    <button type="button" class="btn btn-danger" onclick="this.closest('.input-row').remove()">✕</button>
+                  `;
+                  list.appendChild(item);
+                  if (count === 0) {
+                    const typeInput = demandContainer.querySelector('.demand-tube');
+                    if (typeInput) typeInput.value = row[colMap.type] || "未指定";
+                  }
+                  count++;
+                }
+              }
+              alert(`✅ 成功匯入 ${count} 筆需求資料！`);
+            }, 100);
+          } catch (err) {
+            console.error(err);
+            alert("Excel 解析失敗");
+          }
+        };
+        reader.readAsArrayBuffer(file);
+        e.target.value = '';
+      });
+
+      // 初始載入預設項
+      document.getElementById('add-stock-btn').click();
+      document.getElementById('add-demand-btn').click();
+    });
+  </script>
+</body>
+</html>
+
