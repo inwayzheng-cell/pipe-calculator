@@ -3,101 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>分組工具</title>
+  <title>管用料計算工具</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <!-- 載入 XLSX -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>管用料計算工具</h1>
 
-  <div id="stock-container">
-    <h3>單支最大長度 <small style="color: #666; font-weight: normal;">(新增請扣除150夾料尺寸)</small></h3>
-    <button id="add-stock-btn" class="add-btn">＋ 新增客戶料</button>
-    <div id="stock-inputs">
-      <!-- 初始單支最大長度輸入項，包含種類欄位 -->
-      <div class="input-row" style="display: none;">
-        種類 <input type="text" class="stock-type" placeholder="管材種類">
-        長度 <input type="number" class="stock" value="5850">
-        數量 <input type="number" class="stock-qty" value="1">
+    <div id="stock-container">
+      <h3>單支最大長度 <small style="color: #666; font-weight: normal;">(若有夾料需求請自行扣除後輸入)</small></h3>
+      <button id="add-stock-btn" class="add-btn">＋ 新增客戶料</button>
+      <div id="stock-inputs">
+        <div class="input-row">
+          種類 <input type="text" class="stock-type" placeholder="規格" value="">
+          長度 <input type="number" class="stock" value="5850">
+          數量 <input type="number" class="stock-qty" value="1">
+          <button type="button" class="remove-btn" onclick="this.parentElement.remove()">✕</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="demand-container">
+    <div id="demand-container">
     <h3>需求列表</h3>
-    <button id="add-demand-btn" class="add-btn">＋ 新增需求</button>
-    <!-- 匯入 Excel -->
-    <div class="file-input-container">
-      <input type="file" id="excel-file" accept=".xlsx,.xls">
-      <span id="file-name">未選擇檔案</span>
+    <div class="action-bar" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <button id="add-demand-btn" class="add-btn">＋ 新增規格</button>
+        
+        <div class="file-input-container">
+    <label for="excel-file" class="file-label" style="cursor: pointer; background: #e1e1e1; padding: 8px 15px; border-radius: 4px; border: 1px solid #ccc; display: inline-block;">
+        📥 選擇 Excel 檔案
+    </label>
+    
+    <input type="file" id="excel-file" accept=".xlsx,.xls">
+    
+    <span id="file-name">未選擇檔案</span>
+</div>
     </div>
     <div id="demand-inputs"></div>
-  </div>
+</div>
 
-  <button id="run-btn" class="primary-btn">開始計算</button>
-  <button id="export-btn" class="secondary-btn" disabled>匯出 Excel</button>
-  <button id="clear-btn" class="secondary-btn">清除</button>
+    <div class="control-panel">
+    <button id="run-btn" class="primary-btn">🚀 開始計算</button>
+    <button id="export-btn" class="secondary-btn" disabled>📊 匯出 Excel</button>
+    
+    <button id="clear-results-btn" class="secondary-btn" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #444;">🧹 僅清除結果</button>
+    <button id="clear-all-btn" class="secondary-btn">🗑️ 全部重置</button>
+</div>
 
-  <h2>結果</h2>
-  <div id="result"></div>
+    <hr>
 
-  <!-- 載入簡化版本 -->
-  <script src="js/xlsx-loader.js"></script>
-  <script src="js/exporter.js"></script>
-  <script src="js/simple-main.js"></script>
+    <h2>計算結果</h2>
+    <div id="result">
+      <p style="color: #999; text-align: center;">尚未有計算結果，請點擊上方按鈕開始。</p>
+    </div>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    <script src="js/xlsx-loader.js"></script>
+    <script src="js/exporter.js"></script>
+    <script src="js/simple-main.js"></script>
 
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                showUpdateBar();
-              }
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').then(registration => {
+            console.log('SW 註冊成功:', registration.scope);
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  showUpdateBar();
+                }
+              });
             });
-          });
-
-        }, err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
-
-        let refreshing;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (refreshing) return;
-          window.location.reload();
-          refreshing = true;
-        });
-      });
-    }
-
-    function showUpdateBar() {
-      let updateBar = document.getElementById('update-bar');
-      if (!updateBar) {
-        updateBar = document.createElement('div');
-        updateBar.id = 'update-bar';
-        updateBar.innerHTML = `
-          <span>有新版本可用！</span>
-          <button id="update-btn">更新</button>
-        `;
-        document.body.appendChild(updateBar);
-
-        document.getElementById('update-btn').addEventListener('click', () => {
-          navigator.serviceWorker.getRegistration().then(reg => {
-            if (reg.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
           });
         });
       }
-    }
-  </script>
+
+      function showUpdateBar() {
+        let updateBar = document.getElementById('update-bar') || document.createElement('div');
+        updateBar.id = 'update-bar';
+        updateBar.className = 'update-notification';
+        updateBar.innerHTML = `
+          <span>✨ 發現新版本！</span>
+          <button onclick="location.reload()">立即更新</button>
+        `;
+        document.body.appendChild(updateBar);
+      }
+    </script>
   </div>
 </body>
 </html>

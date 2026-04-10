@@ -157,24 +157,6 @@ input:focus {
   position: relative;
 }
 
-.file-input-container input[type="file"] {
-  opacity: 0;
-  position: absolute;
-  width: 120px;
-  height: 30px;
-  cursor: pointer;
-}
-
-.file-input-container::before {
-  content: "選擇檔案";
-  display: inline-block;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
 #file-name {
   margin-left: 10px;
   color: #666;
@@ -320,13 +302,36 @@ input:focus {
   transform: translateY(-1px);
 }
 
-/* 隱藏數字輸入框的箭頭 */
+/* 隱藏數字輸入框的箭頭 (Chrome, Safari, Edge, Opera) */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
+/* 隱藏數字輸入框的箭頭 (Firefox) */
+input[type=number] {
+  appearance: textfield; /* 標準屬性 */
+  -moz-appearance: textfield; /* Firefox 前綴 */
+}
+}
+
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* 徹底隱藏原始檔案按鈕，不佔空間也不顯示 */
+#excel-file {
+    display: none !important;
+    visibility: hidden;
+    width: 0;
+    height: 0;
+}
+
+/* 讓顯示檔名的文字好看一點 */
+#file-name {
+    margin-left: 10px;
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
 }
