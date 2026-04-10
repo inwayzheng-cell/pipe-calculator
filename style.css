@@ -212,6 +212,7 @@ input:focus {
   font-size: 14px;
 }
 
+
 .group {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -221,87 +222,99 @@ input:focus {
   font-size: 13px;
 }
 
+input {
+  margin: 2px;
+  padding: 6px;
+  width: 90px; /* 電腦版固定寬度，保持整齊 */
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.input-row {
+  background: #f8fafc;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: nowrap; /* 電腦版預設不換行 */
+  align-items: center;
+  gap: 10px;
+}
+
 @media (max-width: 768px) {
-  /* 1. 容器設定：增加內距給刪除按鈕留空間 */
+    h3 {
+        line-height: 1.4; /* 增加標題行高防止文字重疊 */
+    }
+    
+    h3 small {
+        display: block;    /* 強制換行 */
+        font-size: 0.85em; /* 稍微縮小字體 */
+        margin-top: 4px;   /* 與上方標題保持距離 */
+        border-left: none; /* 確保不會帶到父層的藍色邊框 */
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+  /* 1. 確保每一行可以彈性換行，增加點擊間距 */
   .input-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 15px 45px 15px 15px; /* 右側留 45px 給刪除鈕 */
+    flex-wrap: wrap !important; 
+    padding: 12px 6px;
+    gap: 12px 5px; /* 垂直 12px, 水平 5px */
     align-items: center;
-    position: relative;
-    background: #fff;
-    border-radius: 8px;
-    /* border: 1px solid #f0f0f0; 可選：加邊框讓區塊更明顯 */
+    position: relative; /* 用於定位刪除按鈕 */
   }
 
-  /* 2. 輸入框通用樣式 */
-  .input-row input {
-    padding: 12px;
-    font-size: 16px; /* 防止 iOS 自動縮放 */
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
-    background: #f9f9f9;
-  }
-
-  /* 3. 隱藏純文字標籤 (若你需要保留提示，建議改用 placeholder) */
-  /* 如果 HTML 結構是 <span>長度</span><input>，這裡會隱藏 span */
-  .input-row > span:not(.remove-btn),
-  .input-row > label {
-    display: none; 
-  }
-  
-  /* 重要：確保 Input 有 placeholder 提示，否則用戶會不知道填什麼 */
-  /* 如果無法改 HTML，請註解掉上面的 display:none，並用下面的樣式讓 label 變小 */
-  /* 
+  /* 2. 在手機上不顯示文字標籤，腾出空間 */
+  .input-row label,
   .input-row > span {
-    font-size: 12px;
-    color: #888;
-    width: 100%;
-    margin-bottom: -5px;
-  } 
-  */
-
-  /* 4. 針對「規格/種類」這類大輸入框：佔滿全寬 */
-  /* 這裡假設你的 HTML 結構中，第一個 input 是主要欄位 */
-  .input-row input:first-child,
-  .input-row input[type="text"] {
-    width: 100%;
-    flex: 1 1 100%;
+    display: none !important;
   }
 
-  /* 5. 針對「長度」與「數量」：並排顯示 */
-  /* 這裡利用 input 的類型或特定 class 來區分，如果沒有 class，可以用 :nth-child */
-  /* 假設結構是：[長度Input] [數量Input] */
-  .input-row input[type="number"],
-  .input-row input.input-length,
-  .input-row input.input-qty {
-    width: 48%; /* 各佔約一半 */
-    flex: 1 1 48%;
+  /* 3. 讓所有的輸入框都自動撐滿最大空間 */
+  .input-row input {
+    width: 100% !important; /* 每個輸入框都佔滿 100% 寬度，強迫它們換行排列 */
+    margin: 0 0 5px 0 !important; /* 增加底部間距 */
+    padding: 10px;
+    font-size: 14px;
+    box-sizing: border-box; /* 確保 padding 不會影響寬度計算 */
+    flex: 1 1 100%; /* 強制佔滿 */
+    min-width: 0;
   }
 
-  /* 6. 刪除按鈕：絕對定位在右側 */
+  /* 4. 針對種類欄位的特別設定 */
+  .stock-type, .demand-tube {
+    margin-bottom: 8px !important;
+  }
+
+  /* 5. 修正刪除按鈕的位置，防止它蓋到輸入框 */
   .remove-btn {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
     width: 32px;
     height: 32px;
-    border-radius: 50%;
-    background-color: #ff4d4f;
-    color: white;
-    border: none;
-    font-size: 18px;
-    line-height: 1;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    z-index: 10;
+    margin: 0;
+    font-size: 14px;
+    z-index: 5; /* 確保在上方 */
+  }
+
+  /* 6. 控制面板按鈕優化 */
+  .control-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .control-panel button {
+    margin: 0;
+    font-size: 13px;
+    padding: 15px 5px;
+    width: 100%;
   }
 }
 
