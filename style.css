@@ -212,7 +212,6 @@ input:focus {
   font-size: 14px;
 }
 
-
 .group {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -222,80 +221,47 @@ input:focus {
   font-size: 13px;
 }
 
-input {
-  margin: 2px;
-  padding: 6px;
-  width: 90px; /* 電腦版固定寬度，保持整齊 */
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.input-row {
-  background: #f8fafc;
-  padding: 8px;
-  margin: 5px 0;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  flex-wrap: nowrap; /* 電腦版預設不換行 */
-  align-items: center;
-  gap: 10px;
-}
-
 @media (max-width: 768px) {
-    h3 {
-        line-height: 1.4; /* 增加標題行高防止文字重疊 */
-    }
-    
-    h3 small {
-        display: block;    /* 強制換行 */
-        font-size: 0.85em; /* 稍微縮小字體 */
-        margin-top: 4px;   /* 與上方標題保持距離 */
-        border-left: none; /* 確保不會帶到父層的藍色邊框 */
-        padding-left: 0;
-    }
-}
-
-@media (max-width: 768px) {
-  /* 手機版開啟換行 */
+  /* 1. 允許內容在寬度不足時自動換行 */
   .input-row {
-    flex-wrap: wrap !important; 
-    padding: 12px 10px;
-    gap: 8px;
+    flex-wrap: wrap; 
+    justify-content: flex-start;
+    padding: 8px 6px;
+    gap: 6px;
   }
 
-  /* 針對每一個標籤+輸入框的組合，我們不讓它硬擠 */
+  /* 2. 讓輸入框自動伸縮，不再死守 85px */
   .input-row input {
-    width: auto !important; /* 取消電腦版的 90px */
-    flex: 1 1 120px; /* 最小 120px，放不下就自動換行 */
+    flex: 1 1 60px; /* 最小 60px，剩餘空間自動分配 */
+    width: 0; /* 必須設為 0 才能讓 flex 縮放生效 */
     min-width: 0;
-    padding: 10px 8px;
+    padding: 8px 4px;
   }
 
-  /* 種類/規格 這種文字較長的，強迫它在手機版佔滿一行 */
+  /* 3. 針對種類/管徑輸入框，給予較大的縮放比例 */
   .stock-type, .demand-tube {
-    flex: 1 1 100% !important;
-    margin-bottom: 5px;
+    flex: 2 1 100px !important;
   }
 
-  /* 修正刪除按鈕，讓它在換行後也能好看 */
+  /* 4. 修正刪除按鈕位置 */
   .remove-btn {
     margin-left: auto;
-    flex: 0 0 32px;
+    flex-shrink: 0; /* 防止按鈕被壓扁 */
   }
 
-  /* 下方按鈕區：手機版改為 2x2 排列 */
+  /* 5. 優化控制面板按鈕，改為兩兩並排防止超出 */
   .control-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
+    padding: 10px 0;
   }
-  
+
   .control-panel button {
-    margin: 0;
     width: 100%;
-    padding: 15px 5px;
+    margin: 0;
+    padding: 12px 4px;
+    font-size: 13px;
   }
 }
 
