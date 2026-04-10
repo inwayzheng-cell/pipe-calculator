@@ -212,6 +212,7 @@ input:focus {
   font-size: 14px;
 }
 
+
 .group {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -219,6 +220,27 @@ input:focus {
   margin: 4px 0; /* 減少結果行外邊距 */
   background-color: white;
   font-size: 13px;
+}
+
+input {
+  margin: 2px;
+  padding: 6px;
+  width: 90px; /* 電腦版固定寬度，保持整齊 */
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.input-row {
+  background: #f8fafc;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: nowrap; /* 電腦版預設不換行 */
+  align-items: center;
+  gap: 10px;
 }
 
 @media (max-width: 768px) {
@@ -235,52 +257,44 @@ input:focus {
     }
 }
 
-  /* 1. 確保每一行可以換行，並稍微增加垂直間距 */
+@media (max-width: 768px) {
+  /* 手機版開啟換行 */
   .input-row {
     flex-wrap: wrap !important; 
-    padding: 12px 8px;
-    gap: 10px 5px; /* 垂直間距 10px, 水平間距 5px */
-    align-items: center;
+    padding: 12px 10px;
+    gap: 8px;
   }
 
-  /* 2. 讓「種類/規格」這類長文字輸入框佔據整行或大部分 */
+  /* 針對每一個標籤+輸入框的組合，我們不讓它硬擠 */
+  .input-row input {
+    width: auto !important; /* 取消電腦版的 90px */
+    flex: 1 1 120px; /* 最小 120px，放不下就自動換行 */
+    min-width: 0;
+    padding: 10px 8px;
+  }
+
+  /* 種類/規格 這種文字較長的，強迫它在手機版佔滿一行 */
   .stock-type, .demand-tube {
-    flex: 1 1 100% !important; /* 在手機上強迫佔滿一行，讓後面的長度數量換行 */
+    flex: 1 1 100% !important;
     margin-bottom: 5px;
   }
 
-  /* 3. 強迫「長度」和「數量」這類數字輸入框在空間不足時至少佔 45% */
-  .input-row input[type="number"], 
-  .input-row input[type="text"]:not(.stock-type):not(.demand-tube) {
-    flex: 1 1 40% !important; 
-    min-width: 80px;
-    width: 0;
-  }
-
-  /* 4. 針對「文字標籤」與「輸入框」的排版優化 */
-  /* 如果你的 HTML 結構是文字接 input，這會確保它們不會斷開 */
-  .input-row {
-    font-size: 13px;
-    color: #555;
-  }
-
-  /* 5. 修正刪除按鈕：讓它始終有自己的位置，不被擠壓 */
+  /* 修正刪除按鈕，讓它在換行後也能好看 */
   .remove-btn {
-    flex: 0 0 30px;
     margin-left: auto;
+    flex: 0 0 32px;
   }
 
-  /* 6. 控制面板按鈕優化 */
+  /* 下方按鈕區：手機版改為 2x2 排列 */
   .control-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    padding: 10px 0;
   }
-
+  
   .control-panel button {
     margin: 0;
-    font-size: 13px;
+    width: 100%;
     padding: 15px 5px;
   }
 }
