@@ -19,12 +19,19 @@
 </h3>
       <button id="add-stock-btn" class="add-btn">＋ 新增客戶料</button>
       <div id="stock-inputs">
-        <div class="input-row">
-          種類 <input type="text" class="stock-type" placeholder="規格" value="">
-          長度 <input type="number" class="stock" value="5850">
-          數量 <input type="number" class="stock-qty" value="1">
-          <button type="button" class="remove-btn" onclick="this.parentElement.remove()">✕</button>
-        </div>
+        <!-- 範例 -->
+<div class="input-row">
+  <span>種類</span>
+  <input type="text" placeholder="規格" class="stock-spec">
+  
+  <span>長度</span>
+  <input type="number" placeholder="長度" value="5850">
+  
+  <span>數量</span>
+  <input type="number" placeholder="數量" value="1">
+  
+  <button class="remove-btn">✕</button>
+</div>
       </div>
     </div>
 
