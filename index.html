@@ -236,6 +236,43 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in { animation: fadeIn 0.3s ease-out forwards; }
 
+/* --- 管徑規格框專屬顏色優化 --- */
+.stock-type, .demand-tube {
+  background-color: #f0f4ff !important; /* 淺藍色背景，區隔數值欄位 */
+  border: 1px solid #ffadd7 !important; /* 色邊框 */
+  color: #1e40af !important;           /* 深藍色文字 */
+  font-weight: 600;                    /* 加粗文字提高辨識度 */
+}
+
+.stock-type, .demand-len {
+  background-color: #f0f4ff !important; /* 淺藍色背景，區隔數值欄位 */
+  border: 1px solid #8ff63b !important; /* 色邊框 */
+  color: #592f1f !important;           /* 色文字 */
+  font-weight: 600;                    /* 加粗文字提高辨識度 */
+}
+
+/* 當滑鼠點擊或進入輸入框時的加強效果 */
+.stock-type:focus, .demand-tube:focus {
+  background-color: #ffffff !important;
+  border-color: #3bf6cd !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+  outline: none;
+}
+
+/* 讓標籤文字也稍微變色，強化視覺引導 */
+.input-group.type label {
+  color: #4338ca;
+  font-weight: 700;
+}
+
+
+
+/* 讓標籤文字同步變色，視覺引導更強 */
+.input-group.type label, .input-group.len label {
+  color: #ca3838 !important;
+  font-weight: 700 !important;
+}
+
     /* 隱藏原生 input */
     #excel-file { display: none; }
     .placeholder { text-align: center; color: var(--text-sub); padding: 40px 20px; font-style: italic; }
@@ -379,148 +416,220 @@
       };
 
       // C. 開始計算
-      document.getElementById('run-btn').onclick = () => {
-        const stocks = Array.from(stockContainer.querySelectorAll(".input-row")).map(div => ({
-          type: div.querySelector(".stock-type")?.value.trim() || "未指定",
-          length: parseInt(div.querySelector(".stock")?.value)
-        })).filter(s => !isNaN(s.length) && s.length > 0);
+       document.getElementById('run-btn').onclick = () => {
+  // 1. 抓取客戶料
+  const stocksRaw = Array.from(stockContainer.querySelectorAll(".input-row")).map(div => ({
+    type: div.querySelector(".stock-type")?.value.trim() || "未指定",
+    length: parseInt(div.querySelector(".stock")?.value),
+    qty: parseInt(div.querySelector(".stock-qty")?.value) || 0
+  })).filter(s => !isNaN(s.length) && s.length > 0 && s.qty > 0);
 
-        const demands = [];
-        demandContainer.querySelectorAll(".demand-group").forEach(group => {
-          const type = group.querySelector(".demand-tube")?.value.trim() || "未指定";
-          group.querySelectorAll(".demand-item").forEach(item => {
-            const len = parseInt(item.querySelector(".demand-len")?.value);
-            const qty = parseInt(item.querySelector(".demand-qty")?.value);
-            if (!isNaN(len) && !isNaN(qty) && qty > 0) demands.push({ len, qty, type });
-          });
-        });
+  const stocksByType = {};
+  stocksRaw.forEach(s => {
+    if (!stocksByType[s.type]) stocksByType[s.type] = [];
+    stocksByType[s.type].push(s);
+  });
 
-        if (stocks.length === 0 || demands.length === 0) {
-          alert("⚠️ 請輸入有效的庫存與需求項目");
-          return;
-        }
+  // 2. 抓取需求
+  const demands = [];
+  demandContainer.querySelectorAll(".demand-group").forEach(group => {
+    const type = group.querySelector(".demand-tube")?.value.trim() || "未指定";
+    group.querySelectorAll(".demand-item").forEach(item => {
+      const len = parseInt(item.querySelector(".demand-len")?.value);
+      const qty = parseInt(item.querySelector(".demand-qty")?.value);
+      if (!isNaN(len) && !isNaN(qty) && qty > 0) demands.push({ len, qty, type });
+    });
+  });
 
-        const finalResults = [];
-        const demandsByTube = {};
-        demands.forEach(d => {
-          if (!demandsByTube[d.type]) demandsByTube[d.type] = [];
-          for (let i = 0; i < d.qty; i++) demandsByTube[d.type].push(d.len);
-        });
+  if (demands.length === 0) return alert("⚠️ 請輸入需求項目");
 
-        Object.keys(demandsByTube).forEach(type => {
-          let remaining = [...demandsByTube[type]].sort((a, b) => b - a);
-          const stock = stocks.find(s => s.type === type) || stocks[0];
-          const groups = [];
+  const finalResults = [];
+  const demandsByTube = {};
+  demands.forEach(d => {
+    if (!demandsByTube[d.type]) demandsByTube[d.type] = [];
+    for (let i = 0; i < d.qty; i++) demandsByTube[d.type].push(d.len);
+  });
 
-          while (remaining.length > 0) {
-            const best = findOptimalCombination(remaining, stock.length);
-            if (best.items.length === 0) break;
-            
-            groups.push({
-              cuts: [...best.items],
-              used: best.used,
-              remainder: stock.length - best.used,
-              stockLength: stock.length
-            });
+  Object.keys(demandsByTube).forEach(type => {
+    let remaining = [...demandsByTube[type]].sort((a, b) => b - a);
+    const availableExisting = stocksByType[type] || [];
+    const groups = [];
 
-            best.items.forEach(item => {
-              const idx = remaining.indexOf(item);
-              if (idx > -1) remaining.splice(idx, 1);
-            });
+    // --- 第一階段：優先消耗客戶料 ---
+    while (remaining.length > 0) {
+      let bestChoice = null;
+      availableExisting.forEach(stock => {
+        if (stock.qty <= 0) return;
+        const trial = findOptimalCombination(remaining, stock.length);
+        if (trial.items.length > 0) {
+          const efficiency = trial.used / stock.length;
+          if (!bestChoice || efficiency > bestChoice.efficiency) {
+            bestChoice = { ...trial, stockLength: stock.length, stockRef: stock };
           }
+        }
+      });
 
-          finalResults.push({
-            stockType: type,
-            stockLength: stock.length,
-            tubeResults: { [type]: { groups, totalGroups: groups.length } }
-          });
-        });
+      if (!bestChoice) break;
 
-        savedResults = finalResults;
-        savedDemands = demands;
-        renderResults(finalResults);
-        exportBtn.disabled = false;
-      };
+      groups.push({
+        cuts: [...bestChoice.items],
+        used: bestChoice.used,
+        remainder: bestChoice.stockLength - bestChoice.used,
+        stockLength: bestChoice.stockLength,
+        label: "【客戶料】",
+        isExtra: false
+      });
+
+      bestChoice.stockRef.qty--;
+      bestChoice.items.forEach(item => {
+        const idx = remaining.indexOf(item);
+        if (idx > -1) remaining.splice(idx, 1);
+      });
+    }
+
+    // --- 第二階段：補料模式 (5850mm) ---
+    const refillLen = 5850; 
+    while (remaining.length > 0) {
+      if (remaining[0] > refillLen) {
+        alert(`⚠️ 規格 [${type}] 有零件 (${remaining[0]}mm) 超過 5850mm！`);
+        break;
+      }
+      const trial = findOptimalCombination(remaining, refillLen);
+      groups.push({
+        cuts: [...trial.items],
+        used: trial.used,
+        remainder: refillLen - trial.used,
+        stockLength: refillLen,
+        label: "⚠️【需買備料】",
+        isExtra: true
+      });
+      trial.items.forEach(item => {
+        const idx = remaining.indexOf(item);
+        if (idx > -1) remaining.splice(idx, 1);
+      });
+    }
+
+    finalResults.push({ stockType: type, groups });
+  });
+
+  // 在 run-btn.onclick 函式的最末端確保是這樣呼叫的：
+savedResults = finalResults;
+savedDemands = demands;
+renderResults(finalResults); // 渲染結果
+updateAlertBox(finalResults); // 顯示警報
+exportBtn.disabled = false; // 啟用匯出
+};
+
+// 提示框更新函式 (確保匯出按鈕不會因為找不到這個而掛掉)
+function updateAlertBox(results) {
+  const existing = document.querySelector('.extra-alert');
+  if (existing) existing.remove();
+  
+  const extraCount = results.reduce((acc, res) => acc + res.groups.filter(g => g.isExtra).length, 0);
+  if (extraCount > 0) {
+    const info = document.createElement('div');
+    info.className = 'extra-alert';
+    info.style = "margin-bottom:15px; padding:12px; background:#fff4e5; border-left:5px solid #ffa117; color:#663c00; font-weight:bold; border-radius:8px;";
+    info.innerHTML = `📢 提示：客戶料不足，系統已自動安排額外 5850mm 備料共 ${extraCount} 支。`;
+    // 修正：ID 從 result-area 改為 result
+    document.getElementById('result').prepend(info);
+  }
+}
 
       // 渲染結果
-      function renderResults(results) {
-        if (!results || results.length === 0) {
-          resultContainer.innerHTML = '<div class="placeholder">無計算結果</div>';
-          return;
-        }
-        let html = "";
-        results.forEach(res => {
-          html += `<div class="type-result fade-in">
-            <div class="tube-header">
-              <h3>管徑：${res.stockType}</h3>
-              <span>${res.tubeResults[res.stockType].totalGroups} 支 (${res.stockLength}mm)</span>
-            </div>`;
-          
-          res.tubeResults[res.stockType].groups.forEach((g, i) => {
-            const usagePercent = ((g.used / g.stockLength) * 100).toFixed(1);
-            html += `<div class="group">
-              <strong>第 ${i + 1} 支：</strong> <span style="color: var(--text-main);">${g.cuts.join(" + ")}</span>
-              <div class="metrics">
-                <span class="metric-tag">使用: ${g.used}</span>
-                <span class="metric-tag">餘料: ${g.remainder}</span>
-                <span class="metric-tag" style="background: #dbeafe; color: #1e40af;">利用率: ${usagePercent}%</span>
-              </div>
-            </div>`;
-          });
-          html += `</div>`;
-        });
-        resultContainer.innerHTML = html;
-        resultContainer.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      // 修正後的渲染函式
+function renderResults(results) {
+  if (!results || results.length === 0) {
+    resultContainer.innerHTML = '<div class="placeholder">無計算結果</div>';
+    return;
+  }
+  let html = "";
+  results.forEach(res => {
+    html += `<div class="type-result fade-in">
+      <div class="tube-header">
+        <h3>管徑：${res.stockType}</h3>
+        <span>共 ${res.groups.length} 支</span>
+      </div>`;
+    
+    res.groups.forEach((g, i) => {
+      const usagePercent = ((g.used / g.stockLength) * 100).toFixed(1);
+      html += `<div class="group">
+        <strong>第 ${i + 1} 支 ${g.label}：</strong> 
+        <span style="color: var(--text-main); font-weight: 500;">${g.cuts.join(" + ")}</span>
+        <div class="metrics">
+          <span class="metric-tag">原長: ${g.stockLength}</span>
+          <span class="metric-tag">使用: ${g.used}</span>
+          <span class="metric-tag">餘料: ${g.remainder}</span>
+          <span class="metric-tag" style="background: #dbeafe; color: #1e40af;">利用率: ${usagePercent}%</span>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  resultContainer.innerHTML = html;
+}
 
       // D. 匯出 Excel
       exportBtn.onclick = () => {
-        if (!savedResults) return alert("⚠️ 請先進行計算");
-        try {
-          const wb = XLSX.utils.book_new();
-          const ws_data = [];
-          ws_data.push(['--- 用料需求 ---']);
-          ws_data.push(['管徑規格', '長度', '數量']);
-          if (savedDemands) savedDemands.forEach(d => ws_data.push([d.type, d.len, d.qty]));
-          ws_data.push([]);
-          ws_data.push(['--- 裁切明細 ---']);
-          ws_data.push(['管徑規格', '裁切管材長度', '裁切組合', '餘料', '使用總長度']);
-          
-          const summaryCount = {};
-          if (savedResults) {
-            savedResults.forEach(result => {
-              const stockType = result.stockType;
-              const tubeData = result.tubeResults[stockType];
-              if (tubeData?.groups) {
-                if (!summaryCount[stockType]) summaryCount[stockType] = { count: 0, length: result.stockLength };
-                summaryCount[stockType].count += tubeData.groups.length;
-                tubeData.groups.forEach(group => ws_data.push([stockType, group.stockLength, group.cuts.join(' + '), group.remainder, group.used]));
-              }
-            });
-          }
-          ws_data.push([]);
-          ws_data.push(['--- 備料 (採購清單) ---']);
-          ws_data.push(['管徑規格', '單支長度', '需準備總支數']);
-          Object.keys(summaryCount).forEach(type => ws_data.push([type, summaryCount[type].length, `${summaryCount[type].count} 支`]));
+  if (!savedResults || savedResults.length === 0) return alert("⚠️ 請先進行計算");
 
-          const ws = XLSX.utils.aoa_to_sheet(ws_data);
-          ws['!cols'] = ws_data.reduce((acc, row) => {
-            row.forEach((cell, col) => {
-              const content = String(cell || '');
-              const width = content.length + (content.match(/[\u4e00-\u9fa5]/g)?.length || 0);
-              if (!acc[col] || acc[col] < width) acc[col] = width;
-            });
-            return acc;
-          }, []).map(w => ({ wch: w + 2 }));
+  try {
+    const wb = XLSX.utils.book_new();
+    const ws_data = [];
 
-          XLSX.utils.book_append_sheet(wb, ws, '裁切計畫');
-          const date = new Date();
-          XLSX.writeFile(wb, `管用料清單_${date.getMonth()+1}${date.getDate()}_${date.getHours()}${date.getMinutes()}.xlsx`);
-        } catch (err) {
-          console.error(err);
-          alert("匯出失敗，請檢查主控台");
+    // 1. 需求清單
+    ws_data.push(['--- 用料需求 ---']);
+    ws_data.push(['管徑規格', '長度', '數量']);
+    savedDemands.forEach(d => ws_data.push([d.type, d.len, d.qty]));
+    ws_data.push([]);
+
+    // 2. 裁切明細
+    ws_data.push(['--- 裁切明細 (現場施工) ---']);
+    ws_data.push(['管徑規格', '料件來源', '原始長度', '裁切組合', '餘料', '使用總長']);
+    
+    const purchaseSummary = {};
+
+    savedResults.forEach(res => {
+      res.groups.forEach(g => {
+        ws_data.push([res.stockType, g.label, g.stockLength, g.cuts.join(' + '), g.remainder, g.used]);
+        
+        // 統計需要買的 5850 數量
+        if (g.isExtra) {
+          const key = `${res.stockType}_${g.stockLength}`;
+          if (!purchaseSummary[key]) purchaseSummary[key] = { type: res.stockType, len: g.stockLength, count: 0 };
+          purchaseSummary[key].count++;
         }
-      };
+      });
+    });
+    ws_data.push([]);
+
+    // 3. 採購總結
+    ws_data.push(['--- 備料 (採購清單) ---']);
+    ws_data.push(['管徑規格', '單支長度', '需準備總支數']);
+    Object.values(purchaseSummary).forEach(item => {
+      ws_data.push([item.type, item.len, `${item.count} 支`]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    
+    // 自動調整欄寬
+    ws['!cols'] = ws_data.reduce((acc, row) => {
+      row.forEach((cell, col) => {
+        const content = String(cell || '');
+        const width = content.length + (content.match(/[\u4e00-\u9fa5]/g)?.length || 0);
+        if (!acc[col] || acc[col] < width) acc[col] = width;
+      });
+      return acc;
+    }, []).map(w => ({ wch: w + 2 }));
+
+    XLSX.utils.book_append_sheet(wb, ws, '裁切計畫');
+    const date = new Date();
+    XLSX.writeFile(wb, `管材裁切清單_${date.getMonth()+1}${date.getDate()}_${date.getHours()}${date.getMinutes()}.xlsx`);
+  } catch (err) {
+    console.error(err);
+    alert("❌ 匯出失敗，請檢查主控台報錯內容");
+  }
+};
 
       // E. 清除功能
       document.getElementById('clear-results-btn').onclick = () => {
@@ -609,7 +718,7 @@
       });
 
       // 初始載入預設項
-      document.getElementById('add-stock-btn').click();
+      //document.getElementById('add-stock-btn').click();
       document.getElementById('add-demand-btn').click();
     });
   </script>
